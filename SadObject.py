@@ -11,13 +11,16 @@ class SadItem:
 class Sad:
     name = ""
     comment = ""
+    probleme = ""
     capacity = 0
     nbItem = 0
     listItems = []
     bestSolution = []
-    def __init__(self,_name,_comment,_capacity,_nbItem,_listItems):
+    bestFitness = 0
+    def __init__(self,_name,_comment,_probleme,_capacity,_nbItem,_listItems):
         self.name = _name
         self.comment = _comment
+        self.probleme = _probleme
         self.capacity = _capacity
         self.nbItem = _nbItem
         self.listItems = _listItems
