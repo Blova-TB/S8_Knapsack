@@ -26,7 +26,7 @@ class Sad:
         self.probleme = _probleme
         self.capacity = _capacity
         self.nbItem = _nbItem
-        self.listItems = _listItems
+        self.listItems: list[SadItem] = _listItems
     
     def reinit(self) :
         self.bestSolution = [0]*self.nbItem
@@ -50,6 +50,14 @@ class Sad:
         for i in range(len(solution)) :
             poids += self.listItems[i].weight * solution[i]
         return poids
+    
+    def calc_fitness_poids(self,solution) :
+        fitness = 0
+        poids =0
+        for i in range(len(solution)) :
+            poids += self.listItems[i].weight * solution[i]
+            fitness += self.listItems[i].profit * solution[i]
+        return fitness, poids
     
     def describe_sol(self,solution) :
         desc=""

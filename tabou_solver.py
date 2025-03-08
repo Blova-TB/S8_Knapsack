@@ -4,6 +4,11 @@ from Solver import Solver
 
 DEFAULT_TABU_SIZE = 20
 
+def get_voisin(solution,operation) :
+    sol = solution.copy()
+    sol[operation] = 1 - sol[operation]
+    return sol
+
 class Tabou_solver(Solver) :  
     #taille max de la liste tabou
     # liste tabu : liste des transformations interdites
@@ -45,45 +50,42 @@ class Tabou_solver(Solver) :
                 poids += item.weight
                 fitness += item.profit
         return randSolut, fitness, poids
-
-    def get_voisin(self,solution,operation) :
-        if (len(solution) != self.sad.nbItem) :
-            print(solution)
-            assert(False)
-        assert(operation < len(solution))
-        sol = solution.copy()
-        sol[operation] = 1 - sol[operation]
-        return sol
     
+    def delta_fitness_poids_voisin(self,solution,op):
+        item = self.sad.listItems[op]
+        if (solution[op]) :
+            return (item.weight,item.profit)
+        else :
+            return (-item.weight,-item.profit) 
+
     def get_best_voisin(self, solution) : 
-        best_voisin = []
         best_fitness = -1
         op=-1
+        (fitness_base, poids_base) = self.sad.calc_fitness_poids(solution)
         for i in range(0,self.sad.nbItem) :
             if (i in self.tabu_list) :
                 continue
-            voisin = self.get_voisin(solution,i)
-            fitness = self.sad.calc_fitness(voisin)
-            poids = self.sad.calc_poids(voisin)
-
-            if (fitness >= best_fitness and poids <= self.sad.capacity * 1.2) :
-                best_fitness = fitness
-                best_voisin = voisin
-                op = i
+            (d_fitness, d_poids) = self.delta_fitness_poids_voisin(solution,i)
+            n_fitness = fitness_base + d_fitness 
+            n_poids = poids_base + d_poids 
+            
+            if (n_fitness >= best_fitness and n_poids <= self.sad.capacity * 1.2) :
+                best_fitness = n_fitness
+                op=i
                 
-        return best_voisin, best_fitness, op 
+        return  best_fitness,op
             
     
     def solve(self) : 
         #init boucle
         for i in range(0, self.MAX_ITER) :
-            (best_voisin, voisin_fitness,op) = self.get_best_voisin(self.solution)
+            (voisin_fitness,op) = self.get_best_voisin(self.solution)
             if (op == -1) :
                 #l'algo est bloqué
                 return
             delta = voisin_fitness - self.fitness
             #print(i,":",len(best_voisin),"/",self.sad.nbItem, " with a value of",voisin_fitness, " with the op ",op)
-            self.update_self(best_voisin,voisin_fitness)#on met la solution courrante à jour
+            self.update_self(get_voisin(self.solution,op),voisin_fitness)#on met la solution courrante à jour
             
             if (delta <= 0) :
                 #si c'est moins bien, on met dans la liste tabu
@@ -94,7 +96,7 @@ class Tabou_solver(Solver) :
                 self.update_sad()
 
     def update_self(self, solution ,fitness) :
-        self.solution = solution.copy()
+        self.solution = solution
         self.fitness = fitness
         self.poids = self.sad.calc_poids(self.solution)
     
