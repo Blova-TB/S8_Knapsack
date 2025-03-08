@@ -14,9 +14,11 @@ def loadFromFile(path):
     listItems = []
     for i in range(nbItems):
         line = fichier.readline().split()
-        print(line[0])
+        if (i%100 == 0) :
+            print(line[0],end=" ")
         listItems.append(SadItem(int(line[0]), int(line[1]), int(line[2])))
     fichier.close()
+    print()
 
     # print(name)
     # print(comment)

@@ -29,7 +29,7 @@ class Sad:
         self.listItems = _listItems
     
     def reinit(self) :
-        self.bestSolution = []
+        self.bestSolution = [0]*self.nbItem
         self.bestFitness = 0
         
     def __str__(self) :

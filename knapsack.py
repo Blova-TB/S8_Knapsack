@@ -1,39 +1,33 @@
 #pour dev
+from testor import *
 from SadObject import *
 import parser
-from tabou_solver import Tabou_solver
-
-import numpy
-print(numpy.__path__)
+import tabou_solver as tbs
+from MyIterator import *
 
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
+def increment(i) :
+    return i+20
 
-sad = parser.loadFromFile("Data/pi-12-100-1000-001.kna")
+def main():
+    sad = parser.loadFromFile("Data/pi-12-1000-1000-001.kna")
 
-fitnessList = []
-rangeList = []
-for i in range(100) :
-    sad.reinit()
+    test = Testor(tbs.Tabou_solver(sad,iter_max=100,tabu_size=10))
+
+    iterator = MyIterator(1, 1002, increment)
+
+    (x,y,err) = test.test(iterator,tbs.reinit_tabu_list,2)
     
-    solver = Tabou_solver(sad)
-    solver.MAX_ITER = i*i//2
-    solver.solve()
-    
-    fitnessList.append(sad.bestFitness)
-    rangeList.append(solver.MAX_ITER)
-    
-fig, ax = plt.subplots()
-ax.set(xlim=(0, max(rangeList)), ylim=(0, max(fitnessList)))
+    fig, ax = plt.subplots()
 
-plt.ion()
+    ax.set(xlim=(0, int(max(x)*1.1)), ylim=(0, max(max(y),sad.capacity*1.2)))
 
-(line,) = ax.plot([], [])  # initially an empty line
+    ax.errorbar(x, y,yerr=err,fmt=".-",linewidth=0.75)
+    ax.set_title("fitness en fonction de la taille de la liste TABU")
+    plt.show(block=True)
 
-timestep = 0.1  # in seconds
-
-for i in range(1, len(rangeList) + 1):
-    line.set_data(rangeList[:i], fitnessList[:i])
-    plt.pause(timestep)
-plt.show(block=True)
+if __name__ == '__main__':
+    main()
