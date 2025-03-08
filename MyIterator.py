@@ -6,7 +6,7 @@ class MyIterator:
         self._start = start
         self._stop = stop
         self.incr = incrementFunction
-        self._len =-1
+        self._len =0
         
         timeout = time.time() + 1 #seconde de calcul max
         while( start < stop and time.time() < timeout):

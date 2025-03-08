@@ -25,8 +25,7 @@ class Tabou_solver(Solver) :
         super().__init__(sad, iter_max)
         
         if(tabu_size == -1) :
-            if (not self.tabu_size) :
-                self.NB_TABU = DEFAULT_TABU_SIZE
+            self.NB_TABU = getattr(self,"NB_TABU",DEFAULT_TABU_SIZE)
         else :
             self.NB_TABU = tabu_size
         
@@ -54,9 +53,9 @@ class Tabou_solver(Solver) :
     def delta_fitness_poids_voisin(self,solution,op):
         item = self.sad.listItems[op]
         if (solution[op]) :
-            return (item.weight,item.profit)
+            return (-item.weight,-item.profit)
         else :
-            return (-item.weight,-item.profit) 
+            return (item.weight,item.profit) 
 
     def get_best_voisin(self, solution) : 
         best_fitness = -1
@@ -69,22 +68,20 @@ class Tabou_solver(Solver) :
             n_fitness = fitness_base + d_fitness 
             n_poids = poids_base + d_poids 
             
-            if (n_fitness >= best_fitness and n_poids <= self.sad.capacity * 1.2) :
+            if (n_fitness > best_fitness and n_poids < self.sad.capacity * 1.2) :
                 best_fitness = n_fitness
                 op=i
                 
-        return  best_fitness,op
+        return best_fitness, op
             
     
     def solve(self) : 
-        #init boucle
         for i in range(0, self.MAX_ITER) :
             (voisin_fitness,op) = self.get_best_voisin(self.solution)
             if (op == -1) :
                 #l'algo est bloqué
-                return
+                break
             delta = voisin_fitness - self.fitness
-            #print(i,":",len(best_voisin),"/",self.sad.nbItem, " with a value of",voisin_fitness, " with the op ",op)
             self.update_self(get_voisin(self.solution,op),voisin_fitness)#on met la solution courrante à jour
             
             if (delta <= 0) :
@@ -102,8 +99,8 @@ class Tabou_solver(Solver) :
     
 def reinit_tabu_list(self : Tabou_solver,tabu_size : int) :
     self.sad.reinit()
-    return Tabou_solver(self.sad,tabu_size,self.MAX_ITER)
+    return Tabou_solver(self.sad,tabu_size=tabu_size,iter_max=self.MAX_ITER)
 
 def reinit_iter_changer(self : Tabou_solver,max_iter_number : int) :
     self.sad.reinit()
-    return Tabou_solver(self.sad,self.NB_TABU,max_iter_number)    
+    return Tabou_solver(self.sad,tabu_size=self.NB_TABU,iter_max=max_iter_number)    

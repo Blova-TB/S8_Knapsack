@@ -37,7 +37,10 @@ def manage_processes(resultQueue: Queue,solver : Solver, iterator, reinit_method
     count_queue = Queue()
     process_count = 0
     for i in iterator :
-        p = Process(target=test_batch, args=(resultQueue,count_queue, solver, i, reinit_method, group_size))
+        p = Process(
+            target=test_batch,
+            args=(resultQueue,count_queue, solver, i, reinit_method, group_size),
+            )
         p.start()
         processes.append(p)
         
@@ -62,7 +65,8 @@ class Testor :
         
         processMaker = Process(
             target=manage_processes,
-            args=(queue, self._solver, iterator, solver_reinit_method, group_size)
+            args=(queue, self._solver, iterator, solver_reinit_method, group_size),
+            name="Knapsack - Process Manager"
             )
         processMaker.start()
             
