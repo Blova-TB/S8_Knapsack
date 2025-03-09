@@ -3,6 +3,7 @@ from SadObject import Sad, SadItem
 from Solver import Solver
 
 DEFAULT_TABU_SIZE = 20
+DEFAULT_THRESHOLD = 1.2
 
 def get_voisin(solution,operation) :
     sol = solution.copy()
@@ -10,7 +11,6 @@ def get_voisin(solution,operation) :
     return sol
 
 class Tabou_solver(Solver) :  
-    #taille max de la liste tabou
     # liste tabu : liste des transformations interdites
     # Une opération c'est l'ajout ou la suppression d'un élément
     # comment la représenter : entier i = indice de l'élément ajouté ou supprimer
@@ -20,13 +20,18 @@ class Tabou_solver(Solver) :
     solution = []
     fitness = 0
     poids = 0
-    def __init__(self, sad: Sad, iter_max=-1, tabu_size=-1) : 
+    def __init__(self, sad: Sad, iter_max=-1, tabu_size=-1, max_weight:float=-1) : 
         super().__init__(sad, iter_max)
         
         if(tabu_size == -1) :
             self.NB_TABU = getattr(self,"NB_TABU",DEFAULT_TABU_SIZE)
         else :
             self.NB_TABU = tabu_size
+            
+        if(max_weight == -1) :
+            self.THRESHOLD = getattr(self,"THRESHOLD",DEFAULT_THRESHOLD)
+        else :
+            self.THRESHOLD = max_weight
         
         (self.solution, self.fitness, self.poids) = self.create_rand_solution()
         self.update_sad()
@@ -62,7 +67,7 @@ class Tabou_solver(Solver) :
             n_fitness = fitness_base + d_fitness 
             n_poids = poids_base + d_poids 
             
-            if (n_fitness > best_fitness and n_poids < self.sad.capacity * 1.2) :
+            if (n_fitness > best_fitness and n_poids < self.sad.capacity * self.THRESHOLD) :
                 best_fitness = n_fitness
                 op=i
                 
@@ -89,8 +94,12 @@ class Tabou_solver(Solver) :
     
 def reinit_tabu_list(self : Tabou_solver,tabu_size : int) :
     self.sad.reinit()
-    return Tabou_solver(self.sad,self.MAX_ITER,tabu_size)
+    return Tabou_solver(self.sad,self.MAX_ITER,tabu_size,self.THRESHOLD)
 
 def reinit_iter_changer(self : Tabou_solver,max_iter_number : int) :
     self.sad.reinit()
-    return Tabou_solver(self.sad,max_iter_number,self.NB_TABU)    
+    return Tabou_solver(self.sad,max_iter_number,self.NB_TABU,self.THRESHOLD)
+
+def reinit_max_weight(self : Tabou_solver,percentage_weight_overflow : float) :
+    self.sad.reinit()
+    return Tabou_solver(self.sad,self.MAX_ITER,self.NB_TABU,percentage_weight_overflow)    

@@ -9,25 +9,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+def show_plot(x,y,err,title,block=True) :
+    plt.cla()
+    plt.title(title)
+    plt.errorbar(x, y,yerr=err,fmt=".",linewidth=0.75)
+    plt.autoscale()
+    plt.show(block=block)
+
 def increment(i) :
-    return i+1
+    return i+50
 
 def main():
-    sad = parser.loadFromFile("Data/pi-12-1000-1000-001.kna")
+    sad = parser.loadFromFile("Data/pi-12-10000-1000-001.kna")
+    test = Testor(tbs.Tabou_solver(sad,tabu_size=200))
 
-    test = Testor(tbs.Tabou_solver(sad,iter_max=1502))
-
-    iterator = MyIterator(986, 1002, increment)
-
-    (x,y,err) = test.test(iterator,tbs.reinit_tabu_list,10)
+    #iterator = MyIterator(1, 800, increment)
+    iterator = range(1,10,3)
     
-    fig, ax = plt.subplots()
+    (x,y,err) = test.test(iterator,tbs.reinit_iter_changer,1)
+    
+    title = "fitness en fonction de la taille de la liste TABU"
 
-    ax.set(xlim=(0, int(max(x)*1.025)+1), ylim=(0,int(max(np.add(y,err))*1.025)+1))
-
-    ax.errorbar(x, y,yerr=err,fmt=".",linewidth=0.75)
-    ax.set_title("fitness en fonction de la taille de la liste TABU")
-    plt.show(block=True)
+    
+    np.set_printoptions(legacy='1.25')
+    print("index:",x)
+    print("values:",y)
+    print("variance:",err)
+    
+    show_plot(x, y, err, title, block=True)
 
 if __name__ == '__main__':
     main()

@@ -1,5 +1,4 @@
 import math
-import time
 
 import numpy as np
 from SadObject import Sad
@@ -10,15 +9,6 @@ from Solver import Solver
 from multiprocessing import Queue, Process
 import os
 
-def test_batch_nul(solver : Solver, parameter : int, reinit_method : Callable[[Solver, int], Solver],size : int) :
-    fitnesses = []
-    for _ in range(size) :
-        solver = reinit_method(solver, parameter)
-        solver.solve()
-        fitnesses.append(solver.sad.bestFitness)
-    
-    return parameter, np.average(fitnesses), np.nanstd(fitnesses)
-
 def test_batch(q: Queue,manage_queue:Queue,solver : Solver, parameter : int, reinit_method : Callable[[Solver, int], Solver],size : int) :
     fitnesses = []
     for j in range(size) :
@@ -26,7 +16,6 @@ def test_batch(q: Queue,manage_queue:Queue,solver : Solver, parameter : int, rei
         solver = reinit_method(solver, parameter)
         solver.solve()
         fitnesses.append(solver.sad.bestFitness)
-    
     q.put((parameter, np.average(fitnesses),math.sqrt(np.var(fitnesses))))
     manage_queue.put((True))
 
@@ -75,7 +64,7 @@ class Testor :
         unit = "sol" if (group_size == 1) else "batch"
         
         #on récupère les résultats
-        for _ in tqdm(iterator,unit=unit, desc="calc") :
+        for _ in tqdm(iterator,unit=unit, desc="calcul") :
             results=queue.get()
             fitnessList.append(results[1])
             rangeList.append(results[0])
@@ -87,18 +76,3 @@ class Testor :
     
         return (rangeList,fitnessList,variances)
     
-    def testSansThread(self, iterator,solver_reinit_method : Callable[[Solver, int], Solver],group_size=1):
-        fitnessList = []
-        rangeList = []
-        variances = []
-        #boucle avec barre de progression
-        
-        unit = "" if (group_size == 1) else "batch"
-       
-        for i in tqdm(iterator,unit=unit) :
-            resluts=test_batch_nul(self._solver, i, solver_reinit_method, group_size)
-            fitnessList.append(resluts[1])
-            rangeList.append(resluts[0])
-            variances.append(resluts[2])
-            
-        return (rangeList,fitnessList,variances)
