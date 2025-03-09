@@ -1,6 +1,7 @@
 import random
 from SadObject import Sad, SadItem
 from Solver import Solver
+from collections import deque
 
 DEFAULT_TABU_SIZE = 20
 DEFAULT_THRESHOLD = 1.2
@@ -14,7 +15,7 @@ class Tabou_solver(Solver) :
     # liste tabu : liste des transformations interdites
     # Une opération c'est l'ajout ou la suppression d'un élément
     # comment la représenter : entier i = indice de l'élément ajouté ou supprimer
-    tabu_list = []
+    tabu_list: deque
 
     #solution courante
     solution = []
@@ -27,7 +28,9 @@ class Tabou_solver(Solver) :
             self.NB_TABU = getattr(self,"NB_TABU",DEFAULT_TABU_SIZE)
         else :
             self.NB_TABU = tabu_size
-            
+        self.tabu_list = deque()
+        self.tabu_set = set()
+        
         if(max_weight == -1) :
             self.THRESHOLD = getattr(self,"THRESHOLD",DEFAULT_THRESHOLD)
         else :
@@ -61,7 +64,7 @@ class Tabou_solver(Solver) :
         op=-1
         (fitness_base, poids_base) = self.sad.calc_fitness_poids(solution)
         for i in range(0,self.sad.nbItem) :
-            if (i in self.tabu_list) :
+            if (i in self.tabu_set) :
                 continue
             (d_fitness, d_poids) = self.delta_fitness_poids_voisin(solution,i)
             n_fitness = fitness_base + d_fitness 
@@ -86,8 +89,10 @@ class Tabou_solver(Solver) :
             if (delta <= 0) :
                 #si c'est moins bien, on met dans la liste tabu
                 self.tabu_list.append(op)
+                self.tabu_set.add(op)
                 if (len(self.tabu_list) > self.NB_TABU) :
-                    self.tabu_list.pop(0)
+                    supp = self.tabu_list.popleft()
+                    self.tabu_set.remove(supp)
                     
             if (self.sad.bestFitness <= self.fitness) :
                 self.update_sad()#ne le met à jour que si le poids est correct

@@ -60,10 +60,12 @@ class Sad:
         return fitness, poids
     
     def describe_sol(self,solution) :
-        desc=""
+        (fit,poids) = self.calc_fitness_poids(solution)
+        desc =  "\nfitness: "+str(fit)
+        desc += "\n  poids: "+str(poids)+"/"+ str(self.capacity)+"\n"
         for i in range(len(solution)) :
             if solution[i] :
                 item = self.listItems[i]
-                desc += str(solution[i]) + "x"+str(item.id) + " : "
-                desc += str(item.weight) + "kg " + str(item.profit) + '$\n'
+                desc += str(solution[i]) + "x"+str(item.id) + "\t: "
+                desc += str(item.weight) + "kg\t" + str(item.profit) + '$\n'
         return desc

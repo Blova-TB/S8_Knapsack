@@ -10,12 +10,15 @@ def loadFromFile(path):
     capacity = int(fichier.readline().split(":")[1].strip())
 
     fichier.readline()
-    fichier.readline()
-
+    args = fichier.readline().split("[")[1].replace("]:","").replace("\n","").split(" ")
+    for i in range(len(args)) :
+        args[i] = "_"+args[i]
+    
     listItems = []
     for i in tqdm(range(nbItems),desc="loading file",unit="lines",unit_scale=True):
         line = fichier.readline().split()
-        listItems.append(SadItem(int(line[0]), int(line[1]), int(line[2])))
+        argument = {args[i] : int(line[i]) for i in range(len(args))}
+        listItems.append(SadItem(**argument))
     fichier.close()
 
     # print(name)
