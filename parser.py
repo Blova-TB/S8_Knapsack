@@ -1,3 +1,4 @@
+from tqdm import tqdm
 from SadObject import SadItem,Sad
 
 def loadFromFile(path):
@@ -12,13 +13,10 @@ def loadFromFile(path):
     fichier.readline()
 
     listItems = []
-    for i in range(nbItems):
+    for i in tqdm(range(nbItems),desc="loading file",unit="lines",unit_scale=True):
         line = fichier.readline().split()
-        if (i%100 == 0) :
-            print(line[0],end=" ")
         listItems.append(SadItem(int(line[0]), int(line[1]), int(line[2])))
     fichier.close()
-    print()
 
     # print(name)
     # print(comment)

@@ -12,13 +12,12 @@ import os
 
 def test_batch_nul(solver : Solver, parameter : int, reinit_method : Callable[[Solver, int], Solver],size : int) :
     fitnesses = []
-    for j in range(size) :
-        solver.sad.reinit()
+    for _ in range(size) :
         solver = reinit_method(solver, parameter)
         solver.solve()
         fitnesses.append(solver.sad.bestFitness)
     
-    return parameter, np.average(fitnesses), math.sqrt(np.var(fitnesses))
+    return parameter, np.average(fitnesses), np.nanstd(fitnesses)
 
 def test_batch(q: Queue,manage_queue:Queue,solver : Solver, parameter : int, reinit_method : Callable[[Solver, int], Solver],size : int) :
     fitnesses = []

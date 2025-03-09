@@ -1,5 +1,5 @@
 import random
-from SadObject import Sad
+from SadObject import Sad, SadItem
 from Solver import Solver
 
 DEFAULT_TABU_SIZE = 20
@@ -20,7 +20,6 @@ class Tabou_solver(Solver) :
     solution = []
     fitness = 0
     poids = 0
-
     def __init__(self, sad: Sad, iter_max=-1, tabu_size=-1) : 
         super().__init__(sad, iter_max)
         
@@ -31,11 +30,6 @@ class Tabou_solver(Solver) :
         
         (self.solution, self.fitness, self.poids) = self.create_rand_solution()
         self.update_sad()
-
-    def update_sad(self) : 
-        if (self.poids <= self.sad.capacity) :
-            self.sad.bestSolution = self.solution.copy()
-            self.sad.bestFitness = self.fitness
         
     def create_rand_solution(self) :
         randSolut = [0]*self.sad.nbItem
@@ -51,7 +45,7 @@ class Tabou_solver(Solver) :
         return randSolut, fitness, poids
     
     def delta_fitness_poids_voisin(self,solution,op):
-        item = self.sad.listItems[op]
+        item : SadItem = self.sad.listItems[op]
         if (solution[op]) :
             return (-item.weight,-item.profit)
         else :
@@ -76,31 +70,27 @@ class Tabou_solver(Solver) :
             
     
     def solve(self) : 
-        for i in range(0, self.MAX_ITER) :
+        for _ in range(0, self.MAX_ITER) :
             (voisin_fitness,op) = self.get_best_voisin(self.solution)
             if (op == -1) :
                 #l'algo est bloqué
                 break
             delta = voisin_fitness - self.fitness
-            self.update_self(get_voisin(self.solution,op),voisin_fitness)#on met la solution courrante à jour
+            self.update_self_wfitness(get_voisin(self.solution,op),voisin_fitness)#on met la solution courrante à jour
             
             if (delta <= 0) :
                 #si c'est moins bien, on met dans la liste tabu
                 self.tabu_list.append(op)
                 if (len(self.tabu_list) > self.NB_TABU) :
                     self.tabu_list.pop(0)
-            if (self.sad.bestFitness <= self.fitness and self.poids <= self.sad.capacity) :
-                self.update_sad()
-
-    def update_self(self, solution ,fitness) :
-        self.solution = solution
-        self.fitness = fitness
-        self.poids = self.sad.calc_poids(self.solution)
+                    
+            if (self.sad.bestFitness <= self.fitness) :
+                self.update_sad()#ne le met à jour que si le poids est correct
     
 def reinit_tabu_list(self : Tabou_solver,tabu_size : int) :
     self.sad.reinit()
-    return Tabou_solver(self.sad,tabu_size=tabu_size,iter_max=self.MAX_ITER)
+    return Tabou_solver(self.sad,self.MAX_ITER,tabu_size)
 
 def reinit_iter_changer(self : Tabou_solver,max_iter_number : int) :
     self.sad.reinit()
-    return Tabou_solver(self.sad,tabu_size=self.NB_TABU,iter_max=max_iter_number)    
+    return Tabou_solver(self.sad,max_iter_number,self.NB_TABU)    
