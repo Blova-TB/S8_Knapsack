@@ -9,7 +9,8 @@ class SadItem:
         self.profit = _profit
     def __str__(self):
         return str(self.weight)+ "kg " + str(self.profit) + "$"
-
+    def get_ratio(self):
+        return self.profit/self.weight
 class Sad:
     name = ""
     comment = ""
@@ -20,13 +21,20 @@ class Sad:
     bestSolution = []
     bestFitness = 0
     
-    def __init__(self,_name,_comment,_probleme,_capacity,_nbItem,_listItems):
+    def __init__(self,_name,_comment,_probleme,_capacity,_nbItem,_listItems:list[SadItem],sort=False):
         self.name = _name
         self.comment = _comment
         self.probleme = _probleme
         self.capacity = _capacity
         self.nbItem = _nbItem
-        self.listItems: list[SadItem] = _listItems
+        self.listItems=_listItems
+        if (sort):
+            self.listItems.sort(
+                key=lambda x: x.get_ratio(),
+                reverse=True)
+    
+    def get_item(self,i:int):
+        return self.listItems[i]
     
     def reinit(self) :
         self.bestSolution = [0]*self.nbItem
@@ -60,12 +68,17 @@ class Sad:
         return fitness, poids
     
     def describe_sol(self,solution) :
-        (fit,poids) = self.calc_fitness_poids(solution)
-        desc =  "\nfitness: "+str(fit)
-        desc += "\n  poids: "+str(poids)+"/"+ str(self.capacity)+"\n"
+        desc = self.describe_entete_sol(solution)
         for i in range(len(solution)) :
             if solution[i] :
                 item = self.listItems[i]
                 desc += str(solution[i]) + "x"+str(item.id) + "\t: "
                 desc += str(item.weight) + "kg\t" + str(item.profit) + '$\n'
+        return desc
+    
+    def describe_entete_sol(self,solution) :
+        (fit,poids) = self.calc_fitness_poids(solution)
+        desc =  "fitness: "+str(fit)
+        desc += "\n  poids: "+str(poids)+"/"+ str(self.capacity)+"\n"
+        desc += " nb item:" + str(sum(solution))+"/"+str(self.nbItem)
         return desc

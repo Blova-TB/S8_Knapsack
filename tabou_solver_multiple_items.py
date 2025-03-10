@@ -50,14 +50,14 @@ class Tabou_solver2(Solver) :
         while (poids < self.sad.capacity * 0.6) :
             i = random.randint(0,self.sad.nbItem-1)
             randSolut[i] += 1
-            item = self.sad.listItems[i]
+            item = self.sad.get_item(i)
             poids += item.weight
             fitness += item.profit
         return randSolut, fitness, poids
     
     #ne pas appeler si opération négative sur 0 (pas pris en compte)
     def delta_fitness_poids(self,op):
-        item = self.sad.listItems[int(op/2)]
+        item = self.sad.get_item[int(op/2)]
         
         if (op & 1) :#si op = 2n +1, donc add
             return item.weight,item.profit
@@ -69,7 +69,7 @@ class Tabou_solver2(Solver) :
         op=-1
         (fit_base,poids_base) = self.sad.calc_fitness_poids(solution)
         for i in range(0,self.sad.nbItem*2) :
-            if not ((i & 1) or solution[int(i/2)] ) :
+            if not ((i & 1) or solution[int(i/2)]) :
                 #si on fait une soustraction sur 0, on skip.
                 #ñi addition
                 #ni solution[n] == 0

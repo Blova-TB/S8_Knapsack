@@ -1,7 +1,7 @@
 from tqdm import tqdm
 from SadObject import SadItem,Sad
 
-def loadFromFile(path):
+def loadFromFile(path,sort_sad=False):
     fichier = open(path, "r")
     name = fichier.readline().split(":")[1].strip()
     comment = fichier.readline().split(":")[1].strip()
@@ -29,7 +29,7 @@ def loadFromFile(path):
     # for i in listItems:
     #     print(i.id, i.weight, i.profit)
     
-    return Sad(name, comment, probleme, capacity, nbItems, listItems)
+    return Sad(name, comment, probleme, capacity, nbItems, listItems,sort=sort_sad)
 
 # Exemple :
 # loadFromFile("Data/pi-12-100-1000-001.kna")
