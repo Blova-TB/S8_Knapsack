@@ -12,7 +12,6 @@ import os
 def test_batch(q: Queue,manage_queue:Queue,solver : Solver, parameter : int, reinit_method : Callable[[Solver, int], Solver],size : int) :
     fitnesses = []
     for j in range(size) :
-        solver.sad.reinit()
         solver = reinit_method(solver, parameter)
         solver.solve()
         fitnesses.append(solver.sad.bestFitness)
