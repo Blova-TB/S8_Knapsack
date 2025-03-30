@@ -38,14 +38,14 @@ class Genetique_solver(Solver):
         for i in range(self.nb_iter):
             # print("iteration : ",i)
             self.reproduction()
-            print("reproduction done")
-            self.aff_pop_info()
+            # print("reproduction done")
+            # self.aff_pop_info()
             self.croisement()
-            print("croisement done")
-            self.aff_pop_info()
+            # print("croisement done")
+            # self.aff_pop_info()
             self.mutation()
-            print("mutation done")
-            self.aff_pop_info()
+            # print("mutation done")
+            # self.aff_pop_info()
         return self.sad.bestSolution, self.sad.bestFitness
 
     def create_rand_population(self):
@@ -76,7 +76,7 @@ class Genetique_solver(Solver):
                 self.sad.bestSolution = self.population[i].copy()
                 self.sad.bestFitness = fitness
                 
-                print("new best :",fitness,"solution : ",self.population[i])
+                # print("new best :",fitness,"solution : ",self.population[i])
 
 
             coef[i] = self.calc_real_fitness(fitness,weight)
@@ -95,8 +95,8 @@ class Genetique_solver(Solver):
         # pour sortir de la boucle while a la fin
 
         index = 0
-        print("rand_list : ",rand_list)
-        print("coef : ",coef)
+        # print("rand_list : ",rand_list)
+        # print("coef : ",coef)
         for i in range(self.nb_pop):
             while(rand_list[index]<coef[i]):
                 new_pop[index]=self.population[i].copy()
@@ -169,18 +169,3 @@ class Genetique_solver(Solver):
 
 # sad = parser.loadFromFile("Data/pi-12-100-1000-001.kna")
 # test = Genetique_solver(sad,10,100,1,0.01,1)
-
-
-
-sad = parser.loadFromFile("Data/pi-15-1000-1000-001.kna")
-test = Genetique_solver(sad,10,10,1,0.0005,2)
-sol,fit=test.run()
-test.aff_pop_info()
-printable_solution = []
-for i in range(len(sol)):
-    if(sol[i] == 1):
-        printable_solution.append(i+1)
-print("solution: ",printable_solution)
-print("fitness: ",fit)
-
-print(sad.describe_sol(sol))

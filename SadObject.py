@@ -61,14 +61,15 @@ class Sad:
     
     def calc_fitness_poids(self,solution) :
         fitness = 0
-        poids =0
+        poids = 0
         for i in range(len(solution)) :
-            poids += self.listItems[i].weight * solution[i]
-            fitness += self.listItems[i].profit * solution[i]
+            if solution[i] == 0 : continue
+            poids += self.listItems[i].weight
+            fitness += self.listItems[i].profit
         return fitness, poids
     
     def describe_sol(self,solution) :
-        desc = self.describe_entete_sol(solution)
+        desc = self.describe_entete_sol(solution) + "\n"
         for i in range(len(solution)) :
             if solution[i] :
                 item = self.listItems[i]
@@ -78,7 +79,8 @@ class Sad:
     
     def describe_entete_sol(self,solution) :
         (fit,poids) = self.calc_fitness_poids(solution)
-        desc =  "fitness: "+str(fit)
-        desc += "\n  poids: "+str(poids)+"/"+ str(self.capacity)+"\n"
-        desc += " nb item:" + str(sum(solution))+"/"+str(self.nbItem)
+        desc =  "______________________________\n"
+        desc += "| fitness:\t"+str(fit) + "\n"
+        desc += "| poids:\t"+str(poids)+"/"+ str(self.capacity)+"\n"
+        desc += "| nb item:\t" + str(sum(solution))+"/"+str(self.nbItem)
         return desc
