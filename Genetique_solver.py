@@ -16,17 +16,15 @@ class Genetique_solver(Solver):
     sad : Sad
     nb_iter : int
     nb_pop : int
-    nb_crossing_points : int
     mutation_rate : float
     population : list[list[bool]]
 
-    def __init__(self, sad: Sad, nb_iter, nb_pop, nb_crossing_points, mutation_rate, seed):
+    def __init__(self, sad, nb_iter, nb_pop, mutation_rate, seed):
         self.seed = seed
         random.seed(self.seed)
         super().__init__(sad)
         self.nb_iter = nb_iter
         self.nb_pop = nb_pop
-        self.nb_crossing_points = nb_crossing_points
         self.mutation_rate = mutation_rate
         self.init_list_proba_mutation()
         self.population = [[0]*self.sad.nbItem for i in range(self.nb_pop)]
@@ -34,17 +32,17 @@ class Genetique_solver(Solver):
         self.pop_weight = [0]*self.nb_pop
         self.create_rand_pop_weight(self.sad.capacity)
 
-    def run(self):
+    def solve(self):
         for i in range(self.nb_iter):
             # print("iteration : ",i)
             self.reproduction()
-            # print("reproduction done")
+            # print("--> reproduction done")
             # self.aff_pop_info()
             self.croisement()
-            # print("croisement done")
+            # print("--> croisement done")
             # self.aff_pop_info()
             self.mutation()
-            # print("mutation done")
+            # print("--> mutation done")
             # self.aff_pop_info()
         return self.sad.bestSolution, self.sad.bestFitness
 
@@ -107,7 +105,7 @@ class Genetique_solver(Solver):
     def croisement(self):
         # print("-----------------------croisement-----------------------")
         random.shuffle(self.population)
-        for i in range(0,self.nb_pop,2):
+        for i in range(0,self.nb_pop - 1,2):
             cut_index = random.randint(1,self.sad.nbItem-2)
             self.population[i][cut_index:],self.population[i+1][cut_index:] = self.population[i+1][cut_index:],self.population[i][cut_index:]
 
@@ -138,9 +136,17 @@ class Genetique_solver(Solver):
         print("--------------------------------------------------aff_pop_info--------------------------------------------------")
         for sol in self.population:
             (fitness,weight) = self.sad.calc_fitness_poids(sol)
-            # print("|",self.tab_to_int(sol),"| fitness : ", fitness,"weight : ", weight, "real fitness : ", self.calc_real_fitness(fitness,weight), "|")
             print("|",id(sol),"| fitness : ", fitness,"weight : ", weight, "real fitness : ", self.calc_real_fitness(fitness,weight), "|")
 
+    def aff_pop_info_premier(self,n):
+        print("--------------------------------------------------aff_pop_info--------------------------------------------------")
+        i = 0
+        for sol in self.population:
+            (fitness,weight) = self.sad.calc_fitness_poids(sol)
+            print("|",id(sol),"| fitness : ", fitness,"weight : ", weight, "real fitness : ", self.calc_real_fitness(fitness,weight), "|")
+            i += 1
+            if(i>n):
+                break
         
     def tab_to_int(self,sol):
         res = 0
@@ -166,6 +172,14 @@ class Genetique_solver(Solver):
         # print("list_proba_mutation : ",self.list_proba_mutation)
         # print("nb_item : ",self.sad.nbItem, "mutation_rate : ",self.mutation_rate)
 
+def new_gen_nb_iter(solver:Genetique_solver, nb_iter:int) -> Genetique_solver:
+    return Genetique_solver(solver.sad, nb_iter, solver.nb_pop, solver.mutation_rate, solver.seed +1)
+
+def new_gen_nb_pop(solver:Genetique_solver, nb_pop:int) -> Genetique_solver:
+    return Genetique_solver(solver.sad, solver.nb_iter, nb_pop, solver.mutation_rate, solver.seed +1)
+
+def new_gen_mutation_rate(solver:Genetique_solver, mutation_rate:float) -> Genetique_solver:
+    return Genetique_solver(solver.sad, solver.nb_iter, solver.nb_pop, mutation_rate, solver.seed +1)
 
 # sad = parser.loadFromFile("Data/pi-12-100-1000-001.kna")
 # test = Genetique_solver(sad,10,100,1,0.01,1)
