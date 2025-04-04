@@ -3,31 +3,31 @@ from SadObject import Sad
 from Solver import Solver
 from collections import deque
 
-DEFAULT_TABU_SIZE = 10
+DEFAULT_TABU_SIZE = 30
 DEFAULT_THRESHOLD = 1
-DEFAULT_MAX_ITER = 100
+DEFAULT_MAX_ITER = 200
 DEFAULT_SOLUTION_SIZE = 0.5
 
 def get_voisin(solution:list,operation:int) :
     sol = solution.copy()
-    sol[operation] = 1 - sol[operation]
+    sol[operation] = not sol[operation]
     return sol
 
-class Tabou_solver(Solver) :  
+class Tabou_solver(Solver) :
     # liste tabu : liste des transformations interdites
     # Une opération c'est l'ajout ou la suppression d'un élément
     # comment la représenter : entier i = indice de l'élément ajouté ou supprimer
     tabu_list: deque
 
     #solution courante
-    solution:list
+    solution:list[bool]
     fitness:int
     poids:int
     
 
-    def __init__(self, sad: Sad, iter_max=-1, tabu_size=-1, max_weight:float=-1, def_sol_size:float=-1) : 
+    def __init__(self, sad: Sad, iter_max=-1, tabu_size=-1, max_weight:float=-1, def_sol_size:float=-1) :
         sad.reinit()
-        self.sad = sad            
+        self.sad = sad
         if(iter_max == -1) :
              self.MAX_ITER = getattr(self, "MAX_ITER", DEFAULT_MAX_ITER)
         else :
@@ -69,13 +69,13 @@ class Tabou_solver(Solver) :
 
     
     def create_rand_solution(self) :
-        self.solution = [0]*self.sad.nbItem
+        self.solution = [False]*self.sad.nbItem
         self.fitness = 0
         self.poids = 0
         while (self.poids < self.sad.capacity * self.DEF_SOL_SIZE) :
             i = random.randint(0,self.sad.nbItem-1)
-            if (self.solution[i] == 0 ) :
-                self.solution[i] = 1
+            if (not self.solution[i]) :
+                self.solution[i] = True
                 item = self.sad.get_item(i)
                 self.poids += item.weight
                 self.fitness += item.profit
@@ -87,7 +87,7 @@ class Tabou_solver(Solver) :
         else :
             return item.weight,item.profit
 
-    def get_best_voisin(self) : 
+    def get_best_voisin(self) :
         best_fitness = -1000
         op=-1
         for i in range(0,self.sad.nbItem) :
@@ -109,7 +109,7 @@ class Tabou_solver(Solver) :
         return best_fitness, op
             
     
-    def solve(self) : 
+    def solve(self) :
         for _ in range(0, self.MAX_ITER) :
             (voisin_fitness,op) = self.get_best_voisin()
             if (op == -1) :
@@ -126,7 +126,7 @@ class Tabou_solver(Solver) :
                 if (len(self.tabu_list) > self.NB_TABU) :
                     supp = self.tabu_list.popleft()
                     self.tabu_set.remove(supp)
-                
+
             if (self.sad.bestFitness <= self.fitness) :
                 self.update_sad()#ne le met à jour que si le poids est correct
     
@@ -137,7 +137,7 @@ def reinit_iter_changer(self : Tabou_solver,max_iter_number : int) :
     return Tabou_solver(self.sad,max_iter_number,self.NB_TABU,self.THRESHOLD,self.DEF_SOL_SIZE)
 
 def reinit_max_weight(self : Tabou_solver,percentage_weight_overflow : float) :
-    return Tabou_solver(self.sad,self.MAX_ITER,self.NB_TABU,percentage_weight_overflow,self.DEF_SOL_SIZE)    
+    return Tabou_solver(self.sad,self.MAX_ITER,self.NB_TABU,percentage_weight_overflow,self.DEF_SOL_SIZE)
 
 def reinit_solution_size(self : Tabou_solver,default_solution_size : float) :
-    return Tabou_solver(self.sad,self.MAX_ITER,self.NB_TABU,self.THRESHOLD,default_solution_size)    
+    return Tabou_solver(self.sad,self.MAX_ITER,self.NB_TABU,self.THRESHOLD,default_solution_size)

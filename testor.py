@@ -1,5 +1,4 @@
-import math
-
+from matplotlib import pyplot as plt
 import numpy as np
 from SadObject import Sad
 from typing import Callable
@@ -9,13 +8,33 @@ from Solver import Solver
 from multiprocessing import Queue, Process
 import os
 
+
+def graph_test_result(test_result,solution_optimale:int = None,title="Graph sans titre") :
+    graph_result(test_result[0],test_result[1],test_result[2],title,opti=solution_optimale,other=test_result[3])
+
+def graph_result(x,y,err,title,opti:int=None,other=[]) :
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    ax.set_title(title)
+    ax.errorbar(x, y,yerr=err,fmt=".",linewidth=0.75)
+    if(opti) :
+        ax.axline((0,opti),(1,opti))
+    if (len(other) == len(x)) :
+        ax.plot(x,other,"r+")
+    ax.autoscale()
+
+
 def test_batch(q: Queue,manage_queue:Queue,solver : Solver, parameter : int, reinit_method : Callable[[Solver, int], Solver],size : int) :
     fitnesses = []
     for j in range(size) :
         solver = reinit_method(solver, parameter)
         solver.solve()
         fitnesses.append(solver.sad.bestFitness)
-    q.put((parameter, np.average(fitnesses),math.sqrt(np.var(fitnesses))))
+    avg = np.mean(fitnesses)
+    median = int(np.median(fitnesses))
+    down_pct = int(np.percentile(fitnesses,80)) - median
+    up_pct = median - int(np.percentile(fitnesses,20))
+    q.put((parameter,median,[up_pct,down_pct],avg))
     manage_queue.put((True))
 
 
@@ -57,21 +76,25 @@ class Testor :
             )
         processMaker.start()
             
-        fitnessList = []
+        fitnessMedianeList = []
         rangeList = []
-        variances = []
+        erreure = [[],[]]
+        avgFitnesses = []
         unit = "sol" if (group_size == 1) else "batch"
-        
         #on récupère les résultats
         for _ in tqdm(iterator,unit=unit, desc="calcul") :
+            
             results=queue.get()
-            fitnessList.append(results[1])
+            fitnessMedianeList.append(results[1])
             rangeList.append(results[0])
-            variances.append(results[2])
+            err = results[2]
+            erreure[0].append(err[0])
+            erreure[1].append(err[1])
+            avgFitnesses.append(results[3])
             
         #on attend la fin des process
         processMaker.join()
         processMaker.close()
     
-        return (rangeList,fitnessList,variances)
+        return (rangeList,fitnessMedianeList,erreure,avgFitnesses)
     
