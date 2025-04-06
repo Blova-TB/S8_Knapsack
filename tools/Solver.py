@@ -1,5 +1,5 @@
 import random
-from SadObject import Sad
+from tools.SadObject import Sad
 
 class Solver :
     

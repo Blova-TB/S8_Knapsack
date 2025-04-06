@@ -1,8 +1,6 @@
-from Solver import Solver
+from tools.Solver import Solver
 
 from ortools.algorithms.python import knapsack_solver
-
-import parser  
 
 class Other_solver(Solver) :
     

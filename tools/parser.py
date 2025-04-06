@@ -1,5 +1,5 @@
 from tqdm import tqdm
-from SadObject import SadItem,Sad
+from tools.SadObject import SadItem,Sad
 
 def loadFromFile(path,sort_sad=False):
     fichier = open(path, "r")

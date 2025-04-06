@@ -1,9 +1,9 @@
 from matplotlib import pyplot as plt
 import numpy as np
-from SadObject import Sad
+from tools.SadObject import Sad
 from typing import Callable
 from tqdm import tqdm
-from Solver import Solver
+from tools.Solver import Solver
 
 from multiprocessing import Queue, Process
 import os
@@ -35,8 +35,9 @@ def test_batch(q: Queue,manage_queue:Queue,solver : Solver, parameter : int, rei
     median = int(np.median(fitnesses))
     down_pct = int(np.percentile(fitnesses,80)) - median
     up_pct = median - int(np.percentile(fitnesses,20))
-    q.put((parameter,median,[up_pct,down_pct],avg))
     manage_queue.put((True))
+    q.put((parameter,median,[up_pct,down_pct],avg))
+    
 
 
 def manage_processes(resultQueue: Queue,solver : Solver, iterator, reinit_method : Callable[[Solver, int], Solver],group_size : int) :

@@ -1,6 +1,6 @@
 import random
-from SadObject import Sad
-from Solver import Solver
+from tools.SadObject import Sad
+from tools.Solver import Solver
 from collections import deque
 
 DEFAULT_TABU_SIZE = 30
