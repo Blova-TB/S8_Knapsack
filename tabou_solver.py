@@ -72,13 +72,17 @@ class Tabou_solver(Solver) :
         self.solution = [False]*self.sad.nbItem
         self.fitness = 0
         self.poids = 0
+        nbItems = 0
         while (self.poids < self.sad.capacity * self.DEF_SOL_SIZE) :
             i = random.randint(0,self.sad.nbItem-1)
             if (not self.solution[i]) :
+                nbItems += 1
                 self.solution[i] = True
                 item = self.sad.get_item(i)
                 self.poids += item.weight
                 self.fitness += item.profit
+            elif (nbItems == self.sad.nbItem) :
+                break
     
     def delta_fitness_poids_voisin(self,solution,op):
         item = self.sad.get_item(op)
@@ -141,3 +145,13 @@ def reinit_max_weight(self : Tabou_solver,percentage_weight_overflow : float) :
 
 def reinit_solution_size(self : Tabou_solver,default_solution_size : float) :
     return Tabou_solver(self.sad,self.MAX_ITER,self.NB_TABU,self.THRESHOLD,default_solution_size)
+
+class variateur_tabou : 
+    def liste_tabou() :
+        return reinit_tabu_list, "fitness en fonction de la taille de la liste TABU"
+    def nombre_iterations() :
+        return  reinit_iter_changer, "fitness en fonction du nombre d'itérations"
+    def poids_max_accepte() :
+        return reinit_max_weight, "fitness en fonction du poids maximal"
+    def poids_inital() :
+        return reinit_solution_size, "fitness fct taille solution initiale"

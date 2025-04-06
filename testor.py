@@ -18,10 +18,11 @@ def graph_result(x,y,err,title,opti:int=None,other=[]) :
     ax.set_title(title)
     ax.errorbar(x, y,yerr=err,fmt=".",linewidth=0.75)
     if(opti) :
-        ax.axline((0,opti),(1,opti))
+        ax.axline((min(x),opti),(max(x),opti))
     if (len(other) == len(x)) :
         ax.plot(x,other,"r+")
     ax.autoscale()
+    plt.show()
 
 
 def test_batch(q: Queue,manage_queue:Queue,solver : Solver, parameter : int, reinit_method : Callable[[Solver, int], Solver],size : int) :
