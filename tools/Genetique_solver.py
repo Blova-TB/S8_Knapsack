@@ -20,9 +20,7 @@ class Genetique_solver(Solver):
     population : list[list[bool]]
 
     def __init__(self, sad, nb_iter, nb_pop, mutation_rate, seed):
-        self.seed = seed
-        random.seed(self.seed)
-        super().__init__(sad)
+        super().__init__(sad,seed)
         self.nb_iter = nb_iter
         self.nb_pop = nb_pop
         self.mutation_rate = mutation_rate
@@ -182,4 +180,6 @@ def new_gen_mutation_rate(solver:Genetique_solver, mutation_rate:float) -> Genet
     return Genetique_solver(solver.sad, solver.nb_iter, solver.nb_pop, mutation_rate, solver.seed +1)
 
 # sad = parser.loadFromFile("Data/pi-12-100-1000-001.kna")
-# test = Genetique_solver(sad,10,100,1,0.01,1)
+# test = Genetique_solver(sad,10,100,0.01,2)
+# sol,fit=test.solve()
+# print(sad.describe_entete_sol(sol))
