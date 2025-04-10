@@ -7,7 +7,7 @@ class floatRange:
         self._start = start
         self._stop = stop
         self.step = step
-        self._len = int((stop - start) / step) +1
+        self._len = int(0.5+(stop - start) / step)
     def __iter__(self):
         self.i = self._start
         return self

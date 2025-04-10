@@ -12,6 +12,45 @@ import os
 def graph_test_result(test_result,solution_optimale:int = None,title="Graph sans titre") :
     graph_result(test_result[0],test_result[1],test_result[2],title,opti=solution_optimale,other=test_result[3])
 
+def plot_full_colored_matrix(matrix,x_ticks,y_ticks,title1="x",title2="y",title=""):
+    """
+    Affiche une heatmap remplissant toute la surface, avec les couleurs
+    correspondant aux valeurs de la matrice.
+    """
+    matrix = np.array(matrix)
+    n, m = matrix.shape
+
+    fig = plt.figure(figsize=(8, 8))
+    ax = plt.gca()
+    im = plt.imshow(matrix, cmap='coolwarm')
+    plt.colorbar(im, label="fitness moyenne")
+    plt.title(title)
+
+    for i in range(n):
+        for j in range(m):
+            plt.text(j, i, str(matrix[i][j]),
+                     ha='center', va='center', color='white', fontsize=5, fontweight='bold')
+
+    ax.set_xticks(range(len(x_ticks)))
+    ax.set_xticklabels(x_ticks)
+    ax.set_yticks(range(len(y_ticks)))
+    ax.set_yticklabels(y_ticks)
+
+    ax.set_aspect('equal')
+
+    # plt.xticks(ticks=range(len(x_ticks)), labels=x_ticks)
+    # plt.yticks(ticks=range(len(y_ticks)), labels=y_ticks)
+
+    # plt.gca().set_xticks(list(np.arange(-0.5, m, 1)), minor=True)
+    # plt.gca().set_yticks(list(np.arange(-0.5, n, 1)), minor=True)
+    # plt.grid(which='minor', color='black', linewidth=1)
+    # plt.gca().tick_params(which='minor', bottom=False, left=False)
+    ax.set_xlabel(title1)
+    ax.set_ylabel(title2)
+    
+    plt.tight_layout()
+    plt.show()
+
 def graph_result(x,y,err,title,opti:int=None,other=[]) :
     fig = plt.figure()
     ax = fig.add_subplot()

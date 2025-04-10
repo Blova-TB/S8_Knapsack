@@ -1,11 +1,10 @@
 import random
-from Solver import Solver
+from tools.Solver import *
 from collections import deque
-from testor import *
-from SadObject import *
-import tabou_solver as tbs
-from MyIterator import *
-import parser
+from tools.testor import *
+from tools.SadObject import *
+import tools.tabou_solver as tbs
+from tools.MyIterator import *
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -178,6 +177,14 @@ def new_gen_nb_pop(solver:Genetique_solver, nb_pop:int) -> Genetique_solver:
 
 def new_gen_mutation_rate(solver:Genetique_solver, mutation_rate:float) -> Genetique_solver:
     return Genetique_solver(solver.sad, solver.nb_iter, solver.nb_pop, mutation_rate, solver.seed +1)
+
+class variateur_genetique : 
+    def nombre_iterations() :
+        return new_gen_nb_iter, "fitness en fonction du nombre d'itérations"
+    def nombre_population() :
+        return  new_gen_nb_pop, "fitness en fonction du nombre d'individus dans la population"
+    def mutation_rate() :
+        return new_gen_mutation_rate, "fitness en fonction de la probabilité de mutation"    
 
 # sad = parser.loadFromFile("Data/pi-12-100-1000-001.kna")
 # test = Genetique_solver(sad,10,100,0.01,2)
