@@ -18,8 +18,9 @@ class Genetique_solver(Solver):
     mutation_rate : float
     population : list[list[bool]]
 
-    def __init__(self, sad, nb_iter, nb_pop, mutation_rate, seed):
+    def __init__(self, sad, nb_iter, nb_pop, mutation_rate, seed, run_type = "classic"):
         super().__init__(sad,seed)
+        self.run_type = run_type
         self.nb_iter = nb_iter
         self.nb_pop = nb_pop
         self.mutation_rate = mutation_rate
@@ -30,7 +31,16 @@ class Genetique_solver(Solver):
         self.create_rand_pop_weight(self.sad.capacity)
 
     def solve(self):
-        for i in range(self.nb_iter):
+        match(self.run_type):
+            case "classic":
+                return self.solve_classic()
+            case "new_mutation":
+                return self.solve_new_mutation()
+            case default:
+                raise ValueError(f"Unknown run type: {self.run_type}")
+    
+    def solve_classic(self):
+        for _ in range(self.nb_iter):
             # print("iteration : ",i)
             self.reproduction()
             # print("--> reproduction done")
@@ -42,6 +52,15 @@ class Genetique_solver(Solver):
             # print("--> mutation done")
             # self.aff_pop_info()
         return self.sad.bestSolution, self.sad.bestFitness
+    
+    def solve_new_mutation(self):
+        for _ in range(self.nb_iter):
+            self.reproduction()
+            self.croisement()
+            self.mutation_equ()
+        return self.sad.bestSolution, self.sad.bestFitness
+
+
 
     def create_rand_population(self):
         for i in range(self.nb_pop):
@@ -125,6 +144,46 @@ class Genetique_solver(Solver):
                 self.population[i][rand] = 1 - self.population[i][rand]
                 muted_set.add(rand)
 
+    def mutation_equ(self):
+        # print("------------------------mutation-equ--------------------")
+        for i in range(self.nb_pop):
+            nb_mutation = np.searchsorted(self.list_proba_mutation, random.random())
+            nb_item_take = 0
+            for j in range(self.sad.nbItem):
+                if(self.population[i][j] == 1):
+                    nb_item_take += 1
+
+            mutation_sub = set()
+            mutation_add = set()
+
+            for _ in range(nb_mutation):
+                if(random.random() < 0.5): # mutation add
+                    if(len(mutation_add) < self.sad.nbItem - nb_item_take):
+                        rand = random.randint(0, self.sad.nbItem - 1 - nb_item_take)
+                        while(rand in mutation_add):
+                            rand = random.randint(0, self.sad.nbItem - 1 - nb_item_take)
+                        mutation_add.add(rand)
+
+                else: # mutation sub
+                    if(len(mutation_sub) < nb_item_take):
+                        rand = random.randint(0, nb_item_take - 1)
+                        while(rand in mutation_sub):
+                            rand = random.randint(0, nb_item_take - 1)
+                        mutation_sub.add(rand)
+
+            index_nb_item_take = 0
+            index_nb_item_not_take = 0
+
+            for j in range(self.sad.nbItem):
+                if(self.population[i][j] == 1):
+                    if(index_nb_item_take in mutation_sub):
+                        self.population[i][j] = 0
+                    index_nb_item_take += 1
+                else:
+                    if(index_nb_item_not_take in mutation_add):
+                        self.population[i][j] = 1
+                    index_nb_item_not_take += 1
+
     def aff_pop(self):
         for sol in self.population:
             print(sol)
@@ -170,13 +229,13 @@ class Genetique_solver(Solver):
         # print("nb_item : ",self.sad.nbItem, "mutation_rate : ",self.mutation_rate)
 
 def new_gen_nb_iter(solver:Genetique_solver, nb_iter:int) -> Genetique_solver:
-    return Genetique_solver(solver.sad, nb_iter, solver.nb_pop, solver.mutation_rate, solver.seed +1)
+    return Genetique_solver(solver.sad, nb_iter, solver.nb_pop, solver.mutation_rate, solver.seed +1 , solver.run_type)
 
 def new_gen_nb_pop(solver:Genetique_solver, nb_pop:int) -> Genetique_solver:
-    return Genetique_solver(solver.sad, solver.nb_iter, nb_pop, solver.mutation_rate, solver.seed +1)
+    return Genetique_solver(solver.sad, solver.nb_iter, nb_pop, solver.mutation_rate, solver.seed +1 , solver.run_type)
 
 def new_gen_mutation_rate(solver:Genetique_solver, mutation_rate:float) -> Genetique_solver:
-    return Genetique_solver(solver.sad, solver.nb_iter, solver.nb_pop, mutation_rate, solver.seed +1)
+    return Genetique_solver(solver.sad, solver.nb_iter, solver.nb_pop, mutation_rate, solver.seed +1 , solver.run_type)
 
 class variateur_genetique : 
     def nombre_iterations() :
