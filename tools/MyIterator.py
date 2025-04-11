@@ -16,7 +16,7 @@ class floatRange:
         return self
 
     def __next__(self):
-        if (self.i >= self._stop) :
+        if (self.i > self._stop) :
             raise StopIteration
         x = self.i
         self.i += self.step

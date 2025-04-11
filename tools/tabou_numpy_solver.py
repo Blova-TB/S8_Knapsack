@@ -30,10 +30,7 @@ class tabou_numpy_solver(Solver) :
     
 
     def __init__(self, sad: Sad, iter_max=-1, tabu_size=-1, cout_depassement:float=-1, def_sol_size:float=-1) :
-        sad.reinit()
-        self.sad = sad
-        self.item_weights = np.array([sad.get_item(i).weight for i in range(sad.nbItem)])
-        self.item_fitnesses = np.array([sad.get_item(i).profit for i in range(sad.nbItem)])
+        super().__init__(sad,random.randint(0,10**6))
         if(iter_max == -1) :
              self.MAX_ITER = getattr(self, "MAX_ITER", DEFAULT_MAX_ITER)
         else :
