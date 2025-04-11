@@ -2,7 +2,7 @@ import random
 from tools.SadObject import Sad
 from tools.Solver import Solver
 from collections import deque
-
+import numpy as np
 DEFAULT_TABU_SIZE = 30
 DEFAULT_THRESHOLD = 1
 DEFAULT_MAX_ITER = 200
@@ -13,7 +13,7 @@ def get_voisin(solution:list,operation:int) :
     sol[operation] = not sol[operation]
     return sol
 
-class tabou2_solver(Solver) :
+class tabou_numpy_solver(Solver) :
     # liste tabu : liste des transformations interdites
     # Une opération c'est l'ajout ou la suppression d'un élément
     # comment la représenter : entier i = indice de l'élément ajouté ou supprimer
@@ -30,8 +30,10 @@ class tabou2_solver(Solver) :
     
 
     def __init__(self, sad: Sad, iter_max=-1, tabu_size=-1, cout_depassement:float=-1, def_sol_size:float=-1) :
-        super().__init__(sad,random.randint(0,10**6))
-        
+        sad.reinit()
+        self.sad = sad
+        self.item_weights = np.array([sad.get_item(i).weight for i in range(sad.nbItem)])
+        self.item_fitnesses = np.array([sad.get_item(i).profit for i in range(sad.nbItem)])
         if(iter_max == -1) :
              self.MAX_ITER = getattr(self, "MAX_ITER", DEFAULT_MAX_ITER)
         else :
@@ -84,11 +86,10 @@ class tabou2_solver(Solver) :
         return diff * self.OVERFLOW_COST if (diff > 0) else 0
     
     def calc_neg_point_of_weight_diff(self,diff) :
-        #ATTENTION, diff doit être positive. 
-        return diff * self.OVERFLOW_COST
+        return diff * self.OVERFLOW_COST if (diff > 0) else 0
     
     def create_rand_solution(self) :
-        self.solution = [False]*self.sad.nbItem
+        self.solution = np.zeros(self.sad.nbItem,dtype=bool)
         self.raw_fitness = 0
         self.poids = 0
         nbItems = 0
@@ -110,32 +111,33 @@ class tabou2_solver(Solver) :
 
             if (self.poids_overflow > w ) :
                 #poids > capa + weight ; donc on il y a toujours une diff
-                return - f + w * self.OVERFLOW_COST
+                return - f + self.calc_neg_point_of_weight_diff(w) 
             #si poids <= capa + weight, juste a retirer (le profit + la fitness négative)
             #si on est déjà en dessous, neg fitness = 0 donc ça marche
             return self.neg_fitness - f
         #on l'ajoute]
         if (self.poids_overflow >= 0) :
-            return f - w * self.OVERFLOW_COST
+            return f - self.calc_neg_point_of_weight_diff(w)
         elif ( - self.poids_overflow >= w) :#si l'item rentre
             return f
         #si item.weight > marge restante
-        #pour rappel : self.poids_overflow est négatif, c'est poids - capa, 
-        return f - (w + self.poids_overflow) * self.OVERFLOW_COST
+        return f - self.calc_neg_point_of_weight_diff(w + self.poids_overflow)
             
-    
+    def get_meilleur_op(self):
+        flip = (1 - self.solution * 2)
+        flipped_weights = flip * self.item_weights + self.poids
+        temp = flip * self.item_fitnesses + self.raw_fitness - np.where(flipped_weights > self.sad.capacity, (flipped_weights - self.sad.capacity) * self.neg_fitness,0)
+        for id in np.argpartition(temp,kth=range(self.sad.nbItem-1,-1,-1)) :
+            if not id in self.tabu_set :
+                return id
+        return -1
+
     def get_best_voisin(self) :
-        best_delta = -10000000
-        op=-1
-        for i in range(0,self.sad.nbItem) :
-            if (i in self.tabu_set) :
-                continue
-            
-            new_delta = self.delta_fitness_voisin(i)
-            if (new_delta > best_delta) :
-                best_delta = new_delta
-                op=i
-        return best_delta, op
+        op = self.get_meilleur_op()
+        if (op == -1) :
+            return 0,-1
+        else :
+            return self.delta_fitness_voisin(op), op
     
     def update_self_with_op(self,op) :
         if(self.solution[op]) :#existe déjà
@@ -169,17 +171,17 @@ class tabou2_solver(Solver) :
                 self.update_sad()
         return self.sad.bestFitness, self.sad.bestSolution
     
-def reinit_tabu_list(self : tabou2_solver,tabu_size : int) :
-    return tabou2_solver(self.sad,self.MAX_ITER,tabu_size,self.OVERFLOW_COST,self.DEF_SOL_SIZE)
+def reinit_tabu_list(self : tabou_numpy_solver,tabu_size : int) :
+    return tabou_numpy_solver(self.sad,self.MAX_ITER,tabu_size,self.OVERFLOW_COST,self.DEF_SOL_SIZE)
 
-def reinit_iter_changer(self : tabou2_solver,max_iter_number : int) :
-    return tabou2_solver(self.sad,max_iter_number,self.NB_TABU,self.OVERFLOW_COST,self.DEF_SOL_SIZE)
+def reinit_iter_changer(self : tabou_numpy_solver,max_iter_number : int) :
+    return tabou_numpy_solver(self.sad,max_iter_number,self.NB_TABU,self.OVERFLOW_COST,self.DEF_SOL_SIZE)
 
-def reinit_overflow_points(self : tabou2_solver,percentage_weight_overflow : float) :
-    return tabou2_solver(self.sad,self.MAX_ITER,self.NB_TABU,percentage_weight_overflow,self.DEF_SOL_SIZE)
+def reinit_overflow_points(self : tabou_numpy_solver,percentage_weight_overflow : float) :
+    return tabou_numpy_solver(self.sad,self.MAX_ITER,self.NB_TABU,percentage_weight_overflow,self.DEF_SOL_SIZE)
 
-def reinit_solution_size(self : tabou2_solver,default_solution_size : float) :
-    return tabou2_solver(self.sad,self.MAX_ITER,self.NB_TABU,self.OVERFLOW_COST,default_solution_size)
+def reinit_solution_size(self : tabou_numpy_solver,default_solution_size : float) :
+    return tabou_numpy_solver(self.sad,self.MAX_ITER,self.NB_TABU,self.OVERFLOW_COST,default_solution_size)
 
 class variateur_tabou2 : 
     def liste_tabou2() :

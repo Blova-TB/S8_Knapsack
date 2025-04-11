@@ -1,13 +1,16 @@
 from typing import Callable
 import time
-
+import math
 
 class floatRange:
     def __init__(self, start: float, stop: float, step: float):
         self._start = start
         self._stop = stop
         self.step = step
-        self._len = int(0.5+(stop - start) / step)
+        if self.step <= 0:
+            raise ValueError("step must not over zero")         
+        self._len =  math.floor((stop - start + step) / step)
+        
     def __iter__(self):
         self.i = self._start
         return self
