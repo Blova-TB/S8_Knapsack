@@ -68,6 +68,14 @@ class Sad:
             fitness += self.listItems[i].profit
         return fitness, poids
     
+    def calc_solut_fit_poids_set(self,sol):
+        fit = 0
+        poids = 0
+        for i in sol:
+            fit += self.get_item(i).profit
+            poids += self.get_item(i).weight
+        return fit, poids
+
     def describe_sol(self,solution) :
         desc = self.describe_entete_sol(solution) + "\n"
         for i in range(len(solution)) :
@@ -75,6 +83,14 @@ class Sad:
                 item = self.listItems[i]
                 desc += str(solution[i]) + "x"+str(item.id) + "\t: "
                 desc += str(item.weight) + "kg\t" + str(item.profit) + '$\n'
+        return desc
+    
+    def describe_entete_sol_set(self,solution) :
+        (fit,poids) = self.calc_solut_fit_poids_set(solution)
+        desc =  "______________________________\n"
+        desc += "| fitness:\t"+str(fit) + "\n"
+        desc += "| poids:\t"+str(poids)+"/"+ str(self.capacity)+"\n"
+        desc += "| nb item:\t" + str(len(solution))+"/"+str(self.nbItem)
         return desc
     
     def describe_entete_sol(self,solution) :
