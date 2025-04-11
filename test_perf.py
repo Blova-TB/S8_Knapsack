@@ -1,12 +1,12 @@
 import cProfile
-import parser
+import tools.parser as parser
 import random
-from Genetique_solver import *
+from tools.Genetique_solver import *
 
 
 # sad = parser.loadFromFile("Data/pi-15-10000-1000-001.kna")
 sad = parser.loadFromFile("Data/pi-12-10000-1000-001.kna")
-solver = Genetique_solver(sad,5,50,0.001,1)
+solver = Genetique_solver(sad,300,200,0.0001,1)
 sol,fit=solver.solve()
 print(sad.describe_entete_sol(sol))
 
