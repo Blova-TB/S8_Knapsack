@@ -16,6 +16,10 @@ class Genetique_solver(Solver):
     nb_pop : int
     mutation_rate : float
     population : list[set]
+    run_type : str
+    list_proba_mutation : list[float]
+    list_weight : list[int]
+    list_fitness : list[int]
 
     def __init__(self, sad, nb_iter, nb_pop, mutation_rate, seed, run_type = "classic"):
         super().__init__(sad,seed)
@@ -23,6 +27,8 @@ class Genetique_solver(Solver):
         self.nb_iter = nb_iter
         self.nb_pop = nb_pop
         self.mutation_rate = mutation_rate
+        self.list_weight = [0]*self.nb_pop
+        self.list_fitness = [0]*self.nb_pop
         self.init_list_proba_mutation()
         self.population = [set() for i in range(self.nb_pop)]
         self.create_rand_pop_weight(self.sad.capacity)
@@ -48,13 +54,21 @@ class Genetique_solver(Solver):
             self.mutation()
             # print("--> mutation done")
             # self.aff_pop_info()
+        # self.aff_pop_info_premier(10)
         return self.sad.bestSolution, self.sad.bestFitness
     
     def solve_new_mutation(self):
         for _ in range(self.nb_iter):
-            self.reproduction()
             self.croisement()
+            # print("--> croisement done")
+            # self.aff_pop_info_premier(10)
             self.mutation_equ()
+            # print("--> mutation done")
+            # self.aff_pop_info_premier(10)
+            self.reproduction_with_new_mut()
+            # print("--> reproduction done")
+            # self.aff_pop_info_premier(10)
+        # self.aff_pop_info_premier(10)
         return self.sad.bestSolution, self.sad.bestFitness
 
 
@@ -97,23 +111,37 @@ class Genetique_solver(Solver):
         for i in range(1,self.nb_pop):
             coef[i] = (coef[i] / coef_tot) + coef[i-1]
             
+        new_pop = []
 
-        new_pop = [[0]*self.sad_nbItem for i in range(self.nb_pop)]
-        
-        rand_list = [random.random() for i in range(self.nb_pop)]
-        list.sort(rand_list)
-        rand_list.append(999)
-        # pour sortir de la boucle while a la fin
-
-        index = 0
-        # print("rand_list : ",rand_list)
-        # print("coef : ",coef)
         for i in range(self.nb_pop):
-            while(rand_list[index]<coef[i]):
-                new_pop[index]=self.population[i].copy()
-                index += 1
+            new_pop.append(self.population[np.searchsorted(coef, random.random())])
 
         self.population = new_pop
+
+    def reproduction_with_new_mut(self):
+        # print("----------------------reproduction----------------------")
+        
+        coef = [0.0]*self.nb_pop
+        coef_tot = 0
+        for i in range(self.nb_pop):
+            # self.list_fitness[i], self.list_weight[i] = self.calc_solut_fit_poids_set(self.population[i])
+            if(self.list_fitness[i]>self.sad.bestFitness and self.list_weight[i]<self.sad_capacity):
+                self.sad.bestSolution = self.population[i].copy()
+                self.sad.bestFitness = self.list_fitness[i]
+            coef[i] = self.calc_real_fitness(self.list_fitness[i],self.list_weight[i])
+            coef_tot += coef[i]
+
+        coef[0] = coef[0] / coef_tot
+        for i in range(1,self.nb_pop):
+            coef[i] = (coef[i] / coef_tot) + coef[i-1]
+            
+        new_pop = []
+
+        for i in range(self.nb_pop):
+            new_pop.append(self.population[np.searchsorted(coef, random.random())])
+
+        self.population = new_pop
+
 
     def croisement(self):
         # print("-----------------------croisement-----------------------")
@@ -159,7 +187,7 @@ class Genetique_solver(Solver):
         for i in range(self.nb_pop):
             nb_mutation = np.searchsorted(self.list_proba_mutation, random.random())
             muted_set = set()
-            for j in range(nb_mutation):
+            for _ in range(nb_mutation):
                 rand = random.randint(0,self.sad_nbItem-1)
                 while(rand in muted_set):
                     rand = random.randint(0,self.sad_nbItem-1)
@@ -170,27 +198,35 @@ class Genetique_solver(Solver):
                 muted_set.add(rand)
 
     def mutation_equ(self):
-        # print("------------------------mutation-equ--------------------")
+        # print("------------------------mutation-equ--------------------")            
+
         for i in range(self.nb_pop):
+            self.list_weight[i], self.list_fitness[i] = self.calc_solut_fit_poids_set(self.population[i])
+            
             nb_mutation = np.searchsorted(self.list_proba_mutation, random.random())
             nb_item_take = len(self.population[i])
             mutation_sub = set()
             mutation_add = set()
-
+            
             for _ in range(nb_mutation):
-                if(random.random() < 0.5): # mutation add
-                    if(len(mutation_add) < self.sad_nbItem - nb_item_take):
+                if(self.list_weight[i] > self.sad_capacity):
+                    if(len(mutation_sub) == nb_item_take):
+                        break
+                    rand = random.randint(0, nb_item_take)
+                    while(rand in mutation_sub):
+                        rand = random.randint(0, nb_item_take)
+                    mutation_sub.add(rand)
+                    self.list_weight[i] -= self.item_weights[rand]
+                    self.list_fitness[i] -= self.item_fitnesses[rand]
+                else:
+                    rand = random.randint(0, self.sad_nbItem - 1 - nb_item_take)
+                    if(len(mutation_add) == self.sad_nbItem - nb_item_take):
+                        break
+                    while(rand in mutation_add):
                         rand = random.randint(0, self.sad_nbItem - 1 - nb_item_take)
-                        while(rand in mutation_add):
-                            rand = random.randint(0, self.sad_nbItem - 1 - nb_item_take)
-                        mutation_add.add(rand)
-
-                else: # mutation sub
-                    if(len(mutation_sub) < nb_item_take):
-                        rand = random.randint(0, nb_item_take - 1)
-                        while(rand in mutation_sub):
-                            rand = random.randint(0, nb_item_take - 1)
-                        mutation_sub.add(rand)
+                    mutation_add.add(rand)
+                    self.list_weight[i] += self.item_weights[rand]
+                    self.list_fitness[i] += self.item_fitnesses[rand]
 
             index_nb_item_take = 0
             index_nb_item_not_take = 0
@@ -213,6 +249,8 @@ class Genetique_solver(Solver):
             poids += self.item_weights[i]
         return fit, poids
 
+        
+
     def aff_pop(self):
         for sol in self.population:
             print(sol)
@@ -220,14 +258,14 @@ class Genetique_solver(Solver):
     def aff_pop_info(self):
         print("--------------------------------------------------aff_pop_info--------------------------------------------------")
         for sol in self.population:
-            (fitness,weight) = self.sad.calc_fitness_poids(sol)
+            (fitness,weight) = self.sad.calc_solut_fit_poids_set(sol)
             print("|",id(sol),"| fitness : ", fitness,"weight : ", weight, "real fitness : ", self.calc_real_fitness(fitness,weight), "|")
 
     def aff_pop_info_premier(self,n):
         print("--------------------------------------------------aff_pop_info--------------------------------------------------")
         i = 0
         for sol in self.population:
-            (fitness,weight) = self.sad.calc_fitness_poids(sol)
+            (fitness,weight) = self.sad.calc_solut_fit_poids_set(sol)
             print("|",id(sol),"| fitness : ", fitness,"weight : ", weight, "real fitness : ", self.calc_real_fitness(fitness,weight), "|")
             i += 1
             if(i>n):
@@ -240,7 +278,7 @@ class Genetique_solver(Solver):
         return res
     
     def calc_real_fitness(self,fitness,weight):
-        return max(fitness - 2 * max(weight - self.sad_capacity,0),1)
+        return max(fitness - 3 * max(weight - self.sad_capacity,0),1)
     
     def init_list_proba_mutation(self):
         self.list_proba_mutation = [(1.0 - self.mutation_rate) ** self.sad_nbItem]

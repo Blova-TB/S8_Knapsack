@@ -1,6 +1,6 @@
-# Genetique
+# Rapport Partie Genetique
 
-## premiere evolution du code
+## introduction
 
 Liste des different parametre a faire varrier :
 
@@ -28,52 +28,107 @@ Pour identifier les parametres permetant d'obtenire de bon resultat dans un temp
 
 -
 
--
+## Resultat
+
+pour le 12_100 :    970
+pour le 13_100 :    1989
+pour le 15_100 :    1011
+
+pour le 12_1000 :   4514
+pour le 13_1000 :   6513
+pour le 15_1000 :   4950
+
+pour le 12_10000 :  45105
+pour le 13_10000 :  64077
+pour le 15_10000 :  50622
+
+### Pour les petits SAD
 
 pour __"pi-12-100-1000-001.kna"__ :
 
 - classic_solve :
-  - nombre d'iteration :
-  - nombre d'individus :
-  - mutation_rate :
-
-- new_mutation_solve :
-  - nombre d'iteration :
-  - nombre d'individus :
-  - mutation_rate :
-
-commentaire :
-
-- TODO
+  - nombre d'iteration : 30
+  - nombre d'individus : 70
+  - mutation_rate : 0.007
+  - temps d'exectution : 0.024s
+  - fitness moyenne : 927.3 (95.6% de optimal)
 
 pour __"pi-13-100-1000-001.kna"__ :
 
 - classic_solve :
-  - nombre d'iteration : 30-40
-  - nombre d'individus : 50-60
-  - mutation_rate : 0.0025
-
-- new_mutation_solve :
-  - nombre d'iteration : 50-60
-  - nombre d'individus : 35-40
-  - mutation_rate : 0.005
-
-commentaire :
-
-- le classic_solve donne de bon resultat plutot rapidement. Pour avoir d'encore meilleurs resultats (en moyenne) on peut utiliser le new_mutation_solve avec un nombre d'iteration superieur a 45. Il est plus long, mais contrairement au classic_solve qui va stagner a partire de 45 iteration, new_mutation_solve va continué a s'amelioré légerement.
+  - nombre d'iteration : 30
+  - nombre d'individus : 40
+  - mutation_rate : 0.006
+  - temps d'exectution : 0.031 s
+  - fitness moyenne : 1972 (99% de optimal) (pour 60 iteration on atteind 1987,5 (99.9% de optimal))
 
 pour __"pi-15-100-1000-001.kna"__ :
+
+- classic_solve :
+  - nombre d'iteration : 30
+  - nombre d'individus : 25
+  - mutation_rate : 0.01
+  - temps d'exectution : 0.010 s
+  - fitness moyenne : 997.7 (98.7% de optimal)
+
+### Pour les moyen SAD
+
+pour __"pi-12-1000-1000-001.kna"__ :
+
+- classic_solve :
+  - nombre d'iteration : 30
+  - nombre d'individus : 85
+  - mutation_rate : 0
+  - temps d'exectution : 0.034 s
+  - fitness moyenne : 4464.91 (98.9% de optimal)
+
+pour __"pi-13-1000-1000-001.kna"__ :
+
+- classic_solve :
+  - nombre d'iteration : 100
+  - nombre d'individus : 200
+  - mutation_rate : 0.00055
+  - temps d'exectution : 0.460 s
+  - fitness moyenne : 6489.6 (99.6% de optimal) (avec une population de 400 on atteind 6509.88 (99.95% de optimal mais on passe a 1.192 s d'execution))
+
+pour __"pi-15-1000-1000-001.kna"__ :
+
+- classic_solve :
+  - nombre d'iteration : 230
+  - nombre d'individus : 60
+  - mutation_rate : 0.003
+  - temps d'exectution : 0.332 s
+  - fitness moyenne : 4838.52 (97.7% de optimal)
+
+### Pour les Grand SAD
+
+pour __"pi-12-10000-1000-001.kna"__ :
 
 - classic_solve :
   - nombre d'iteration :
   - nombre d'individus :
   - mutation_rate :
+  - temps d'exectution :
+  - fitness moyenne :
 
-- new_mutation_solve :
+pour __"pi-13-10000-1000-001.kna"__ :
+
+- classic_solve :
   - nombre d'iteration :
   - nombre d'individus :
   - mutation_rate :
+  - temps d'exectution :
+  - fitness moyenne :
 
-commentaire :
+pour __"pi-15-10000-1000-001.kna"__ :
 
-- TODO
+- classic_solve :
+  - nombre d'iteration :
+  - nombre d'individus :
+  - mutation_rate :
+  - temps d'exectution :
+  - fitness moyenne :
+
+### commentaire
+
+- le classic_solve donne de bon resultat plutot rapidement. Pour avoir d'encore meilleurs resultats (en moyenne) on peut utiliser le new_mutation_solve avec un nombre d'iteration superieur a 45. Il est plus long, mais contrairement au classic_solve qui va stagner a partire de 45 iteration, new_mutation_solve va continué a s'amelioré légerement.

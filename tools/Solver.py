@@ -1,5 +1,6 @@
 import random
 from tools.SadObject import Sad
+import numpy as np
 
 class Solver :
     sad : Sad
@@ -10,8 +11,9 @@ class Solver :
         self.sad = sad
         self.seed = seed
         random.seed(self.seed)
-        self.item_weights = tuple(sad.get_item(i).weight for i in range(sad.nbItem))
-        self.item_fitnesses = tuple(sad.get_item(i).profit for i in range(sad.nbItem))
+        self.item_weights = np.array([sad.get_item(i).weight for i in range(sad.nbItem)])
+        self.item_fitnesses = np.array([sad.get_item(i).profit for i in range(sad.nbItem)])
+
         self.sad_capacity = sad.capacity
         self.sad_nbItem = sad.nbItem
 

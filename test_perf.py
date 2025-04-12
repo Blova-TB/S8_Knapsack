@@ -5,17 +5,22 @@ from tools.Genetique_solver import *
 import time
 
 # sad = parser.loadFromFile("Data/pi-15-10000-1000-001.kna")
-sad = parser.loadFromFile("Data/pi-12-10000-1000-001.kna")
+sad = parser.loadFromFile("Data/pi-13-100-1000-001.kna")
 
+nb_iter = 40
+nb_pop = 40
+mutation_rate = 0.006
 
 for i in range(10) :
     clock_start = time.time()
-    solver = Genetique_solver(sad,300,200,0.0001,i)
+    solver = Genetique_solver(sad,nb_iter,nb_pop,mutation_rate,i,"classic")
     sol,fit=solver.solve()
     print("fit",i,":",fit)
     print("time",i,":",time.time()-clock_start)
+
+
 # cProfile.run('sol,fit=solver.solve()')
-print(sad.describe_entete_sol_set(sol))
+# print(sad.describe_entete_sol_set(sol))
 
 
 #          2009809 function calls (2009808 primitive calls) in 25.120 seconds
