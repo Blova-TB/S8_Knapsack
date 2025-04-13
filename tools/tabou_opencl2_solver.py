@@ -89,28 +89,42 @@ class openCLcompute :
         self.best_id_temp = np.zeros(1,dtype=np.int32)
         self.best_id_buf = cl.Buffer(self.ctx, self.mf.WRITE_ONLY, size=self.best_id_temp.nbytes)
         
-
+        #prépare les arguments statiques des différents kernels
+        self.prepare_kernels()
     
     def compute(self,solution,poids,tabu_list) :      
-        
+        #passage des arguments
         cl.enqueue_copy(self.queue, self.solution_buf, solution)
         cl.enqueue_copy(self.queue, self.tabu_buf, tabu_list)
+        self.kernel_compute.set_arg(4, np.int32(poids))
         
-        self.localcalc.compute_temp(
-            self.queue, (self.global_size,), (self.local_size,),
+        evt1 = cl.enqueue_nd_range_kernel(
+            self.queue, self.kernel_compute,
+            (self.global_size,), (self.local_size,)
+        )
+        evt2 = cl.enqueue_nd_range_kernel(
+            self.queue, self.kernel_reduce,
+            (self.nb_group_pad,), (self.nb_group_pad,),
+            wait_for=[evt1]
+        )
+        cl.enqueue_copy(self.queue, self.best_id_temp,self.best_id_buf,wait_for=[evt2]).wait()
+
+        return self.best_id_temp[0]
+    
+    def prepare_kernels(self) :
+        self.kernel_compute = self.localcalc.compute_temp
+        self.kernel_compute.set_args(
             self.solution_buf, self.weights_buf, self.fitnesses_buf, self.tabu_buf,
-            np.int32(poids), self.capa, self.nover,
+            np.int32(0), self.capa, self.nover,
             self.best_vals_buf, self.best_indices_buf
         )
-        self.localcalc.reduce_max_global(
-            self.queue, (self.nb_group_pad,), (self.nb_group_pad,),
+        
+        self.kernel_reduce = self.localcalc.reduce_max_global
+        self.kernel_reduce.set_args(
             self.best_vals_buf, self.best_indices_buf,
             np.int32(self.nb_group_pad),
             self.best_id_buf
             )
-        cl.enqueue_copy(self.queue, self.best_id_temp,self.best_id_buf)
-
-        return self.best_id_temp[0]
         
     def compile_progs(self) :
         compute_local_temp = """
@@ -134,7 +148,12 @@ class openCLcompute :
                         __local int local_indices[256];
                         
                         // Calcul de flip
-                        int flip = 1 - 2 * solution[i];
+                        int flip;
+                        if (solution[i]) {
+                            flip=-1;
+                        } else {
+                            flip = 1;
+                        }
                         // Calcul du poids après "flip" en entier
                         int flipped_weights = flip * item_weights[i] + poids;
 
@@ -202,6 +221,7 @@ class openCLcompute :
                     }
                     """
         self.localcalc = cl.Program(self.ctx, compute_local_temp).build()
+    
 
 def get_voisin(solution:list,operation:int) :
     sol = solution.copy()
@@ -363,7 +383,7 @@ def reinit_overflow_points(self : tabou_opencl_solver,percentage_weight_overflow
 def reinit_solution_size(self : tabou_opencl_solver,default_solution_size : float) :
     return tabou_opencl_solver(self.sad,self.MAX_ITER,self.NB_TABU,self.OVERFLOW_COST,default_solution_size,self.seed+1)
 
-class variateur_tabou2 : 
+class variateur_tabou_opencl2 : 
     def liste_tabou2() :
         return reinit_tabu_list, "fitness en fonction de la taille de la liste TABU"
     def nombre_iterations() :

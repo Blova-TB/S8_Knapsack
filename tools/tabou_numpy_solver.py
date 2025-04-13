@@ -47,7 +47,6 @@ class tabou_numpy_solver(Solver) :
             self.NB_TABU = tabu_size
         
         self.tabu_list = deque()
-        self.tabu_set = set()
         
         if(cout_depassement == -1) :
             self.OVERFLOW_COST = getattr(self,"OVERFLOW_COST",DEFAULT_THRESHOLD)
@@ -162,10 +161,8 @@ class tabou_numpy_solver(Solver) :
             if (delta <= 0 ) :
                 #si c'est moins bien, on met dans la liste tabu
                 self.tabu_list.append(op)
-                self.tabu_set.add(op)
                 if (len(self.tabu_list) > self.NB_TABU) :
-                    supp = self.tabu_list.popleft()
-                    self.tabu_set.remove(supp)
+                    self.tabu_list.popleft()
             
             self.update_self_with_op(op)
             if (self.sad.bestFitness <= self.true_fitness) :
@@ -184,7 +181,7 @@ def reinit_overflow_points(self : tabou_numpy_solver,percentage_weight_overflow 
 def reinit_solution_size(self : tabou_numpy_solver,default_solution_size : float) :
     return tabou_numpy_solver(self.sad,self.MAX_ITER,self.NB_TABU,self.OVERFLOW_COST,default_solution_size,self.seed+1)
 
-class variateur_tabou2 : 
+class variateur_tabou_numpy : 
     def liste_tabou2() :
         return reinit_tabu_list, "fitness en fonction de la taille de la liste TABU"
     def nombre_iterations() :
