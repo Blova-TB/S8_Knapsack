@@ -29,8 +29,8 @@ class tabou2_solver(Solver) :
     neg_fitness:int     #fitness négative venant du poids en trop
     
 
-    def __init__(self, sad: Sad, iter_max=-1, tabu_size=-1, cout_depassement:float=-1, def_sol_size:float=-1) :
-        super().__init__(sad,random.randint(0,10**6))
+    def __init__(self, sad: Sad, iter_max=-1, tabu_size=-1, cout_depassement:float=-1, def_sol_size:float=-1,seed=1) :
+        super().__init__(sad,seed)
         
         if(iter_max == -1) :
              self.MAX_ITER = getattr(self, "MAX_ITER", DEFAULT_MAX_ITER)
@@ -99,8 +99,8 @@ class tabou2_solver(Solver) :
                 self.solution[i] = True
                 self.poids += self.item_weights[i]
                 self.raw_fitness += self.item_fitnesses[i]
-            elif (nbItems == self.sad.nbItem) :
-                break
+                if (nbItems == self.sad.nbItem) :
+                    break
         self.udpate_true_fitness_after_all_raw_set()
     
     def delta_fitness_voisin(self,op):
@@ -170,16 +170,16 @@ class tabou2_solver(Solver) :
         return self.sad.bestFitness, self.sad.bestSolution
     
 def reinit_tabu_list(self : tabou2_solver,tabu_size : int) :
-    return tabou2_solver(self.sad,self.MAX_ITER,tabu_size,self.OVERFLOW_COST,self.DEF_SOL_SIZE)
+    return tabou2_solver(self.sad,self.MAX_ITER,tabu_size,self.OVERFLOW_COST,self.DEF_SOL_SIZE,self.seed+1)
 
 def reinit_iter_changer(self : tabou2_solver,max_iter_number : int) :
-    return tabou2_solver(self.sad,max_iter_number,self.NB_TABU,self.OVERFLOW_COST,self.DEF_SOL_SIZE)
+    return tabou2_solver(self.sad,max_iter_number,self.NB_TABU,self.OVERFLOW_COST,self.DEF_SOL_SIZE,self.seed+1)
 
 def reinit_overflow_points(self : tabou2_solver,percentage_weight_overflow : float) :
-    return tabou2_solver(self.sad,self.MAX_ITER,self.NB_TABU,percentage_weight_overflow,self.DEF_SOL_SIZE)
+    return tabou2_solver(self.sad,self.MAX_ITER,self.NB_TABU,percentage_weight_overflow,self.DEF_SOL_SIZE,self.seed+1)
 
 def reinit_solution_size(self : tabou2_solver,default_solution_size : float) :
-    return tabou2_solver(self.sad,self.MAX_ITER,self.NB_TABU,self.OVERFLOW_COST,default_solution_size)
+    return tabou2_solver(self.sad,self.MAX_ITER,self.NB_TABU,self.OVERFLOW_COST,default_solution_size,self.seed+1)
 
 class variateur_tabou2 : 
     def liste_tabou2() :

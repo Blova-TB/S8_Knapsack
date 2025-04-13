@@ -33,6 +33,18 @@ class Sad:
                 key=lambda x: x.get_ratio(),
                 reverse=True)
     
+    def get_avg_ratio(self):
+        ratio = 0
+        for item in self.listItems :
+            ratio+= item.get_ratio()
+        return ratio / self.nbItem
+    
+    def get_max_ratio(self):
+        return max(self.listItems,key=SadItem.get_ratio).get_ratio()
+    
+    def count_by_ratio(self,ratio) :
+        return [item.get_ratio() for item in self.listItems].count(ratio)
+    
     def get_item(self,i:int):
         return self.listItems[i]
     
