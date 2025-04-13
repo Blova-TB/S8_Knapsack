@@ -51,7 +51,7 @@ pour __"pi-12-100-1000-001.kna"__ :
   - nombre d'individus : 70
   - mutation_rate : 0.007
   - temps d'exectution : 0.024s
-  - fitness moyenne : 927.3 (95.6% de optimal)
+  - fitness moyenne : 927.3 (95.6% de l'optimal)
 
 pour __"pi-13-100-1000-001.kna"__ :
 
@@ -60,7 +60,7 @@ pour __"pi-13-100-1000-001.kna"__ :
   - nombre d'individus : 40
   - mutation_rate : 0.006
   - temps d'exectution : 0.031 s
-  - fitness moyenne : 1972 (99% de optimal) (pour 60 iteration on atteind 1987,5 (99.9% de optimal))
+  - fitness moyenne : 1972 (99% de l'optimal) (pour 60 iteration on atteind 1987,5 (99.9% de l'optimal))
 
 pour __"pi-15-100-1000-001.kna"__ :
 
@@ -69,7 +69,7 @@ pour __"pi-15-100-1000-001.kna"__ :
   - nombre d'individus : 25
   - mutation_rate : 0.01
   - temps d'exectution : 0.010 s
-  - fitness moyenne : 997.7 (98.7% de optimal)
+  - fitness moyenne : 997.7 (98.7% de l'optimal)
 
 ### Pour les moyen SAD
 
@@ -80,7 +80,7 @@ pour __"pi-12-1000-1000-001.kna"__ :
   - nombre d'individus : 85
   - mutation_rate : 0
   - temps d'exectution : 0.034 s
-  - fitness moyenne : 4464.91 (98.9% de optimal)
+  - fitness moyenne : 4464.91 (98.9% de l'optimal)
 
 pour __"pi-13-1000-1000-001.kna"__ :
 
@@ -89,7 +89,7 @@ pour __"pi-13-1000-1000-001.kna"__ :
   - nombre d'individus : 200
   - mutation_rate : 0.00055
   - temps d'exectution : 0.460 s
-  - fitness moyenne : 6489.6 (99.6% de optimal) (avec une population de 400 on atteind 6509.88 (99.95% de optimal mais on passe a 1.192 s d'execution))
+  - fitness moyenne : 6489.6 (99.6% de l'optimal) (avec une population de 400 on atteind 6509.88 (99.95% de l'optimal) mais on passe a 1.192 s d'execution)
 
 pour __"pi-15-1000-1000-001.kna"__ :
 
@@ -98,36 +98,36 @@ pour __"pi-15-1000-1000-001.kna"__ :
   - nombre d'individus : 60
   - mutation_rate : 0.003
   - temps d'exectution : 0.332 s
-  - fitness moyenne : 4838.52 (97.7% de optimal)
+  - fitness moyenne : 4838.52 (97.7% de l'optimal)
 
 ### Pour les Grand SAD
 
 pour __"pi-12-10000-1000-001.kna"__ :
 
 - classic_solve :
-  - nombre d'iteration :
-  - nombre d'individus :
-  - mutation_rate :
-  - temps d'exectution :
-  - fitness moyenne :
+  - nombre d'iteration : 300
+  - nombre d'individus : 300
+  - mutation_rate : 0
+  - temps d'exectution : 4.058 s
+  - fitness moyenne : 43299.14 (96.0% de l'optimal)
 
 pour __"pi-13-10000-1000-001.kna"__ :
 
 - classic_solve :
-  - nombre d'iteration :
-  - nombre d'individus :
-  - mutation_rate :
-  - temps d'exectution :
-  - fitness moyenne :
+  - nombre d'iteration : 200
+  - nombre d'individus : 500
+  - mutation_rate : 0.00017
+  - temps d'exectution : 8.142
+  - fitness moyenne : 53703 (83.8% de l'optimal)
 
 pour __"pi-15-10000-1000-001.kna"__ :
 
 - classic_solve :
-  - nombre d'iteration :
-  - nombre d'individus :
-  - mutation_rate :
-  - temps d'exectution :
-  - fitness moyenne :
+  - nombre d'iteration : 100
+  - nombre d'individus : 100
+  - mutation_rate : 0.0002
+  - temps d'exectution : 0.529 s
+  - fitness moyenne : 49408.35 (97.6% de l'optimal)
 
 ### commentaire
 
