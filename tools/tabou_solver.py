@@ -26,8 +26,7 @@ class Tabou_solver(Solver) :
     
 
     def __init__(self, sad: Sad, iter_max=-1, tabu_size=-1, max_weight:float=-1, def_sol_size:float=-1) :
-        sad.reinit()
-        self.sad = sad
+        super().__init__(sad,random.randint(1,10**10))
         if(iter_max == -1) :
              self.MAX_ITER = getattr(self, "MAX_ITER", DEFAULT_MAX_ITER)
         else :
@@ -78,18 +77,18 @@ class Tabou_solver(Solver) :
             if (not self.solution[i]) :
                 nbItems += 1
                 self.solution[i] = True
-                item = self.sad.get_item(i)
-                self.poids += item.weight
-                self.fitness += item.profit
-            elif (nbItems == self.sad.nbItem) :
-                break
+                self.poids += self.item_weights[i]
+                self.fitness += self.item_fitnesses[i]
+                if (nbItems == self.sad.nbItem) :
+                    break
     
     def delta_fitness_poids_voisin(self,solution,op):
-        item = self.sad.get_item(op)
         if (solution[op]) :
-            return -item.weight,-item.profit
+            return - self.item_weights[op],-self.item_fitnesses[op]
         else :
-            return item.weight,item.profit
+            return self.item_weights[op], self.item_fitnesses[op]
+
+
 
     def get_best_voisin(self) :
         best_fitness = -1000
@@ -98,14 +97,13 @@ class Tabou_solver(Solver) :
             if (i in self.tabu_set) :
                 continue
             
-            item = self.sad.get_item(i)
             if(self.solution[i]) :
-                new_fitness= self.fitness - item.profit
+                new_fitness= self.fitness - self.item_fitnesses[i]
                 if (new_fitness >= best_fitness) :
                     best_fitness = new_fitness
                     op=i
-            elif (self.poids + item.weight <= self.sad.capacity * self.THRESHOLD) :
-                new_fitness= self.fitness + item.profit
+            elif (self.poids + self.item_weights[i] <= self.sad.capacity * self.THRESHOLD) :
+                new_fitness= self.fitness + self.item_fitnesses[i]
                 if (new_fitness > best_fitness) :
                     best_fitness = new_fitness
                     op=i
@@ -133,6 +131,7 @@ class Tabou_solver(Solver) :
 
             if (self.sad.bestFitness <= self.fitness) :
                 self.update_sad()#ne le met à jour que si le poids est correct
+        return self.sad.bestFitness
     
 def reinit_tabu_list(self : Tabou_solver,tabu_size : int) :
     return Tabou_solver(self.sad,self.MAX_ITER,tabu_size,self.THRESHOLD,self.DEF_SOL_SIZE)

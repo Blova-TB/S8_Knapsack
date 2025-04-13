@@ -143,3 +143,44 @@ class Testor :
     
         return (rangeList,fitnessMedianeList,erreure,avgFitnesses)
     
+
+from tools.Other_solver import Other_solver
+import time
+import random
+def test_perf_map(arg) :
+    return test2solver_perf(arg[0],arg[1],arg[2])
+
+def test2solver_perf(sad,tabou1,tabou2) :
+    perfect = Other_solver(sad).solve()[0]
+    i = 1
+    if sad.nbItem == 100 : 
+        i = 200
+    elif sad.nbItem == 1000 :
+        i = 4
+    r1= []
+    r2=[]
+    r_vide = []
+    tmoins1 = time.perf_counter()
+    for _ in range(i) :
+        random.seed(_)
+        tabou1.create_rand_solution()
+        r_vide.append(0)
+    t0 = time.perf_counter()
+    for _ in range(i) :
+        random.seed(_)
+        tabou1.create_rand_solution()
+        r1.append(tabou1.solve())
+    t1 = time.perf_counter()
+    for _ in range(i) :
+        random.seed(_)
+        tabou2.create_rand_solution()
+        r2.append(tabou2.solve())
+    r2 = [tabou2.solve()[0] for _ in range(i)]
+    t2 = time.perf_counter()
+    m1 = np.average(r1)
+    m2 = np.average(r2)
+    tpsb = t0 - tmoins1
+    
+    ret = f"temps tabou 1: {round(t1-t0-tpsb,3)}s goodness = {round((m1* 100 )/perfect,2)} %\n"
+    ret += f"temps tabou 2: {round(t2-t1-tpsb,3)}s goodness = {round((100 * m2)/perfect,2)} %\n"
+    return ret + f"tabu2 est {round((t1-t0-tpsb)/(t2-t1-tpsb),2)} fois plus rapide que tabu 1\n"
