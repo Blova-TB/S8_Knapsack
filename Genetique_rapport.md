@@ -2,9 +2,15 @@
 
 ## introduction
 
+### liens
+
+__Tout les graphiques généré pour obtenir les résultats si dessous sont disponible 👉 [ici](./graph/Genetique/)__
+__Le code permetant de générer ces graphiques est disponible 👉 [ici](./Genetique_generation_graph.ipynb)__
+__Un fichier pret pour essayer l'algorithme facilement 👉 [ici](./Genetique_bac_a_sable.py)__
+
 ### fonctionnement de l'algorithme
 
-Notre algorithme fonctionne en 3 etapes :
+Notre algorithme genetique fonctionne en 3 etapes :
 
 reproduction : on réalise un roulette biaisé selon la fitness modifier pour obtenir une nouvelle population.
 croisement : on croise les individues deux par deux selon un `cut_index` tiré aléatoirement pour obtenir une nouvelle population.
@@ -18,7 +24,7 @@ On repete ces 3 etapes un certain nombre de fois.
 - nombre d'individu dans la population de solutions
 - chance de mutation par bit des solutions
 
-## Plusieurs ameliorations
+## Plusieurs évolution du code
 
 ### Intialisation
 
@@ -49,18 +55,24 @@ __solution__ : modifier la facons de stocker les solutions : nos solutions conte
 Nous avons donc pus réaliser des `.add()`, `.remove()` et des `in` en temps O(1).
 Le temps d'execution a été divisé par 10.
 
+__contexte__ : Sur les fichiers 12-10000 et 12-1000, de meilleurs résultats on été obtenu lorsque le taux de mutation etait de 0.
+__probleme__ : Nous avons donc cherché a comprendre pourquoi les mutation ne faisais que nous eloigner des bonne solution.
+__solution__ : Lorsqu'on tire au hasard un bit d'une solution pour faire muter ce bit, il y a plus de 99% de chance que cette mutation ajoute un objet au sac. Car les solution valide ne contienne que tres peut d'objet par rapport au nombre disponible.
+Nous avons donc créer une nouvelle methode de mutation `new_mutation` qui au lieu de tirer au hasard parmi tout les objets, elle calcule le poid de la solution et decide si il faut enlever ou ajouter un objet a chaque mutation. La mutation reste donc toujours aléatoires mais pousse la population a se raprocher un maximum du poid max du sac a dos.
+Cela a notament permis d'ameliorer la moyenne des solutions pour le fichier 12-1000 de 4464 à 4500 en ayant un taux de mutation de 0.0008 initialement nul.
+
 ## Recherche des meilleurs parametres
 
-__lecture des graph__ :
+__Lecture des graphiques__ :
 
 il y a deux type de graph differents utilisé dans cette partie :
 
 - les courbes (rappel): permet de faire varier un parametre et d'observer l'evolution de la fitness en fonction de ce dernier. Pour chaque point du graphique l'algorithme est calculer un certain nombre de fois en incrementant la seed de Random. Cela permet d'avoir plusieurs données que nous affichons de la sorte : la moyenne avec un + rouge, la medianne avec un point bleu, l'espace entre la solution du 20eme centile et le 80eme centile par un barre bleu vertical et finalement un ligne horizontal pour placer la solution optimal (calculer par un lib externe).
 - les heatmap : permet de faire varier deux parametres. Affiche la moyenne des meilleurs solutions obtenu dans chaque case et collore la case pour pouvoir la comparer facilement à ses voisines.
 
-__methode__ :
+__Methode__ :
 
-Pour identifier les parametres permetant d'obtenire de bon resultats dans un temps résonnable, nous avons calculé la fitness moyenne des resultat pour des parametre donné.
+Pour identifier les parametres permetant d'obtenire de bon résultats dans un temps résonnable, nous avons calculé la fitness moyenne des resultat pour des parametre donné.
 Nous avons fait varier 1 ou 2 parametres a la fois ce qui nous a alors permis de generer des graphs pour identifier les parametres les plus efficaces.
 Dans la grande majorité des cas, les premiers graph généré on permis de trouver un bon taux de mutation en faisant varier le nombres d'individus et le taux de mutation. (exemple sur 13-10000):
 
@@ -71,7 +83,7 @@ Une foi le taux de mutation fixé, on affiche une courbe de la fitness en foncti
 
 ![Graph](\graph\Genetique\1000\13\03.png)
 
-Il reste alors a trouver a partire de combien d'iteration le resultat ne sameliore presque plus en partant des resultats determiné precedement. On calcule donc la courbe de la meilleurs fitness en fonction du nombre d'iteration. (exemple sur 15-1000):
+Il reste alors a trouver a partire de combien d'iteration le resultat ne s'ameliore presque plus en partant des résultats determiné precedement. On calcule donc la courbe de la meilleurs fitness en fonction du nombre d'iteration. (exemple sur 15-1000):
 
 ![Graph](\graph\Genetique\1000\15\03.png)
 
@@ -80,7 +92,7 @@ Une fois toute les valeurs definis, on peut regenerer les premiers graphes avec 
 ### Solution optimal
 
 determinées par KNAPSACK_DIVIDE_AND_CONQUER_SOLVER de la librairie ortools
-sert de refferance pour evaluer la valeur des resultats.
+sert de référence pour évaluer la valeur des résultats.
 
 pour le 12_100 :    970
 pour le 13_100 :    1989
@@ -180,7 +192,3 @@ pour __"pi-15-10000-1000-001.kna"__ :
   - mutation_rate : 0.0002
   - temps d'exectution : 0.529 s
   - fitness moyenne : 49408.35 (97.6% de l'optimal)
-
-### commentaire
-
-A plusieurs reprise 

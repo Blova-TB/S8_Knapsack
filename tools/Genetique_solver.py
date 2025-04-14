@@ -124,7 +124,7 @@ class Genetique_solver(Solver):
         coef = [0.0]*self.nb_pop
         coef_tot = 0
         for i in range(self.nb_pop):
-            # self.list_fitness[i], self.list_weight[i] = self.calc_solut_fit_poids_set(self.population[i])
+            self.list_fitness[i], self.list_weight[i] = self.calc_solut_fit_poids_set(self.population[i])
             if(self.list_fitness[i]>self.sad.bestFitness and self.list_weight[i]<self.sad_capacity):
                 self.sad.bestSolution = self.population[i].copy()
                 self.sad.bestFitness = self.list_fitness[i]
@@ -208,16 +208,16 @@ class Genetique_solver(Solver):
             mutation_sub = set()
             mutation_add = set()
             
+            aproximate_weight = self.list_weight[i]
             for _ in range(nb_mutation):
-                if(self.list_weight[i] > self.sad_capacity):
+                if(aproximate_weight > self.sad_capacity):
                     if(len(mutation_sub) == nb_item_take):
                         break
                     rand = random.randint(0, nb_item_take)
                     while(rand in mutation_sub):
                         rand = random.randint(0, nb_item_take)
                     mutation_sub.add(rand)
-                    self.list_weight[i] -= self.item_weights[rand]
-                    self.list_fitness[i] -= self.item_fitnesses[rand]
+                    aproximate_weight -= (aproximate_weight/nb_item_take)
                 else:
                     rand = random.randint(0, self.sad_nbItem - 1 - nb_item_take)
                     if(len(mutation_add) == self.sad_nbItem - nb_item_take):
@@ -225,8 +225,7 @@ class Genetique_solver(Solver):
                     while(rand in mutation_add):
                         rand = random.randint(0, self.sad_nbItem - 1 - nb_item_take)
                     mutation_add.add(rand)
-                    self.list_weight[i] += self.item_weights[rand]
-                    self.list_fitness[i] += self.item_fitnesses[rand]
+                    aproximate_weight += (aproximate_weight/nb_item_take)
 
             index_nb_item_take = 0
             index_nb_item_not_take = 0
@@ -235,10 +234,14 @@ class Genetique_solver(Solver):
                 if(j in self.population[i]):
                     if(index_nb_item_take in mutation_sub):
                         self.population[i].remove(j)
+                        self.list_fitness[i] -= self.item_fitnesses[j]
+                        self.list_weight[i] -= self.item_weights[j]
                     index_nb_item_take += 1
                 else:
                     if(index_nb_item_not_take in mutation_add):
                         self.population[i].add(j)
+                        self.list_fitness[i] += self.item_fitnesses[j]
+                        self.list_weight[i] += self.item_weights[j]
                     index_nb_item_not_take += 1
 
     def calc_solut_fit_poids_set(self,sol):
@@ -249,7 +252,6 @@ class Genetique_solver(Solver):
             poids += self.item_weights[i]
         return fit, poids
 
-        
 
     def aff_pop(self):
         for sol in self.population:
