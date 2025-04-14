@@ -1,110 +1,125 @@
-# Rapport Partie Genetique
+## Rapport Partie Génétique
 
-## introduction
+### Introduction
 
-### liens
+#### Liens
 
-__Tout les graphiques généré pour obtenir les résultats si dessous sont disponible 👉 [ici](./graph/Genetique/)__
-__Le code permetant de générer ces graphiques est disponible 👉 [ici](./Genetique_generation_graph.ipynb)__
-__Un fichier pret pour essayer l'algorithme facilement 👉 [ici](./Genetique_bac_a_sable.py)__
+**Tous les graphiques générés pour obtenir les résultats ci-dessous sont disponibles 👉 [ici](./graph/Genetique/)**  
+**Le code permettant de générer ces graphiques est disponible 👉 [ici](./Genetique_generation_graph.ipynb)**  
+**Un fichier prêt pour essayer l'algorithme facilement 👉 [ici](./Genetique_bac_a_sable.py)**
 
-### fonctionnement de l'algorithme
+#### Fonctionnement de l'algorithme
 
-Notre algorithme genetique fonctionne en 3 etapes :
+Notre algorithme génétique fonctionne en 3 étapes :
 
-reproduction : on réalise un roulette biaisé selon la fitness modifier pour obtenir une nouvelle population.
-croisement : on croise les individues deux par deux selon un `cut_index` tiré aléatoirement pour obtenir une nouvelle population.
-mutation : on modifie légèrement aleatoirement plusieurs solutions.
+- **Reproduction** : on réalise une roulette biaisée selon la fitness modifiée pour obtenir une nouvelle population.  
+- **Croisement** : on croise les individus deux par deux selon un `cut_index` tiré aléatoirement pour obtenir une nouvelle population.  
+- **Mutation** : on modifie légèrement et aléatoirement plusieurs solutions.
 
-On repete ces 3 etapes un certain nombre de fois.
+On répète ces 3 étapes un certain nombre de fois.
 
-### Liste des different parametre a faire varier
+#### Liste des différents paramètres à faire varier
 
-- nombre d'iteration avant d'arreter le programme
-- nombre d'individu dans la population de solutions
-- chance de mutation par bit des solutions
+- nombre d’itérations avant d’arrêter le programme  
+- nombre d’individus dans la population de solutions  
+- taux de mutation par bit des solutions  
 
-## Plusieurs évolution du code
+---
 
-### Intialisation
+## Plusieurs évolutions du code
 
-__contexte__ : Une premiere version du code utilisait une initialisation du sac a dos completement aléatoire : chaque objet avait une chance sur 2 de se retrouver dans une solution.
-__probleme__ : le poid des solutions de la premiere generation était donc bien trop elevée puissqu'elle contenait en moyenne la moitier des elements possible.
-Le programe génetique n'arrivait alors pas a revenir sur des solutions réalisable puisque la fitness des solutions calculées etaient toute de 0.
-__solution__ : nous avons donc remplis le sac a dos avec des objets aléatoire jusqu'a ce que le poid des objets selectionnés depasse le poid max du SAD. 
+### Initialisation
 
-### Deroulement
+**Contexte** : une première version du code utilisait une initialisation du sac à dos complètement aléatoire : chaque objet avait une chance sur deux d’être présent dans une solution.  
+**Problème** : le poids des solutions de la première génération était bien trop élevé puisqu’elles contenaient en moyenne la moitié des éléments possibles. Le programme génétique n’arrivait alors pas à revenir sur des solutions réalisables, car la fitness de ces solutions était toujours égale à 0.  
+**Solution** : nous avons donc rempli le sac à dos avec des objets aléatoires jusqu’à ce que le poids dépasse la capacité maximale.
 
-__contexte__ : la fitness du sac a dos se calcule en sommant les fitness des objets qu'il contient mais il ne faut pas que le poid dépasse le poid maximum autorisé.
-__probleme__ : que faire si une solution dépasse le poid max ?
-__solution__ : Si la solution permet tout de meme de s'aprocher d'un bon resultat il serait dommage de lui atribué un fitness de 0. Nous avons donc choisie de calculer une deuxieme fitness (`calc_real_fitness()`) en fonction du poid et de la fitness : `max(fitness - 3 * max(weight - self.sad_capacity,0),1)`
-Les solutions ayant une bonne fitness mais depassant de peu la capacité on donc pu être conservée. Mais pas pris en compte dans les meilleurs solution obtenu car invalide.
+### Déroulement
 
-### Optimisation temporel
+**Contexte** : la fitness du sac à dos se calcule en sommant les valeurs des objets qu’il contient, mais il ne faut pas dépasser le poids maximum autorisé.  
+**Problème** : que faire si une solution dépasse ce poids ?  
+**Solution** : si la solution permet tout de même de s’approcher d’un bon résultat, il serait dommage de lui attribuer une fitness de 0. Nous avons donc choisi de calculer une deuxième fitness (`calc_real_fitness()`) en fonction du poids et de la fitness :  
+`max(fitness - 3 * max(weight - self.sad_capacity, 0), 1)`  
+Les solutions dépassant légèrement la capacité pouvaient donc être conservées, mais elles n’étaient pas sélectionnées comme meilleurs solutions car invalides.
 
-__contexte__ : la fonction réalisant les mutations sur la population choisisais de faire muter ou non chaque bit de chaque solution
-__probleme__ : la fonction devais donc parcourire tout les bits de toute les solution en tirant un chiffre aleatoire a chaque fois. Sur les fichiers a 10 000 objets avec une population de 100 individus cela representait 1 000 000 tirages de nombres aleatoires a chaque iterations pour seulement un centaine de bits modifier... cela prenais environ 90% de notre temps d'exectution.
-__solution__ : Ne pas parcourire les solutions en tirant a l'avance le nombre de mutation qui devais etre réalisée dans chaque solution grace a des formule de probabilité. Ces formule utilisent des coefficients binomiaux (tres lourd), nous avons donc calculer a l'initialisation du solver une liste cumulée de la probabilité d'avoir un certain nombre de mutation a partire du taux de mutation.
-(Nous avons aussi optimisé la generation de cette liste grace au formule decoulant du Triangle de Pascal. Assez peut utile puisque cela n'est calculer qu'a l'initialisation mais tres amusant)
-Lors de la mutation d'une solution il faut donc tiré un float aléatoire entre 0 et 1 et se referer à la list_proba_mutation pour connaitre le nombre de mutation a réaliser sur cette solution. Ensuit, il ne reste plus qu'a tirer des objet aléatoire.
-Le temps d'execution a été divisé par 10.
+### Optimisation temporelle
 
-__contexte__ : les solutions était stocké sous la forme d'un tableau de bits permettant de savoir si un objet etait pris ou non dans le sac.
-__probleme__ : la fonction de calcule de la fitness d'une solution devais alors parcourire la totalité de la solution. De meme lors des croisements, les 1 et 0 etait recopier un à un. C'etait les deux fonctions largement plus longue.
-__solution__ : modifier la facons de stocker les solutions : nos solutions contenaient un ecrasante majoritée de 0, nous avons donc decidé de stocker les solutions sous la forme d'un numpy.set() contenant les index des objets.
-Nous avons donc pus réaliser des `.add()`, `.remove()` et des `in` en temps O(1).
-Le temps d'execution a été divisé par 10.
+**Contexte** : la fonction de mutation parcourait tous les bits de toutes les solutions en tirant un nombre aléatoire pour chaque bit.  
+**Problème** : sur des fichiers à 10 000 objets avec une population de 100 individus, cela représentait 1 000 000 de tirages de nombres aléatoires par itération pour seulement une centaine de bits modifiés… Cela prenait environ 90 % du temps d’exécution.  
+**Solution** : au lieu de parcourir tous les bits, on tire à l’avance le nombre de mutations à faire dans chaque solution grâce à des formules de probabilité (distribution binomiale/coefficients binomiaux). Ces calculs étant coûteux, nous avons pré-calculé une table de probabilités cumulées lors de l’initialisation du solver (grâce au triangle de Pascal).  
+Lors de la mutation d’une solution, on tire un float entre 0 et 1 et on consulte la table `list_proba_mutation` pour déterminer le nombre de mutations à faire. Ensuite, on tire aléatoirement les objets concernés.  
+Le temps d’exécution a été divisé par 10.
 
-__contexte__ : Sur les fichiers 12-10000 et 12-1000, de meilleurs résultats on été obtenu lorsque le taux de mutation etait de 0.
-__probleme__ : Nous avons donc cherché a comprendre pourquoi les mutation ne faisais que nous eloigner des bonne solution.
-__solution__ : Lorsqu'on tire au hasard un bit d'une solution pour faire muter ce bit, il y a plus de 99% de chance que cette mutation ajoute un objet au sac. Car les solution valide ne contienne que tres peut d'objet par rapport au nombre disponible.
-Nous avons donc créer une nouvelle methode de mutation `new_mutation` qui au lieu de tirer au hasard parmi tout les objets, elle calcule le poid de la solution et decide si il faut enlever ou ajouter un objet a chaque mutation. La mutation reste donc toujours aléatoires mais pousse la population a se raprocher un maximum du poid max du sac a dos.
-Cela a notament permis d'ameliorer la moyenne des solutions pour le fichier 12-1000 de 4464 à 4500 en ayant un taux de mutation de 0.0008 initialement nul.
+**Contexte** : les solutions étaient stockées sous forme de tableaux de bits representant une solution.
+**Problème** : cela rendait le calcul de la fitness et les croisements très lents car obligé de tout parcourire même les zeros...
+**Solution** : comme la majorité des bits sont à 0, on a changé le stockage des solutions pour utiliser un `set()` contenant uniquement les indices des objets sélectionnés. Cela permet des opérations tel que `.add()`, `.remove()` et `in` en temps O(1).  
+Le temps d’exécution a encore été divisé par 10.
 
-## Recherche des meilleurs parametres
+**Contexte** : sur les fichiers 12-10000 et 12-1000, de meilleurs résultats ont été obtenus avec un taux de mutation nul.  
+**Problème** : pourquoi la mutation faisait-elle baisser la qualité des solutions ?  
+**Solution** : la plupart des mutations ajoutaient un objet (car les solutions valides contiennent très peu d’objets).  
+Nous avons donc créé une méthode de mutation (`new_mutation`) qui calcule le poids de la solution et décide s’il faut ajouter ou retirer un objet. Cette mutation reste aléatoire mais pousse la population à se rapprocher de la limite du sac.  
+Cela a permis d'améliorer la moyenne sur le fichier 12-1000 de 4464 à 4500, avec un taux de mutation initialement nul devenu 0.0008.
 
-__Lecture des graphiques__ :
+---
 
-il y a deux type de graph differents utilisé dans cette partie :
+## Recherche des meilleurs paramètres
 
-- les courbes (rappel): permet de faire varier un parametre et d'observer l'evolution de la fitness en fonction de ce dernier. Pour chaque point du graphique l'algorithme est calculer un certain nombre de fois en incrementant la seed de Random. Cela permet d'avoir plusieurs données que nous affichons de la sorte : la moyenne avec un + rouge, la medianne avec un point bleu, l'espace entre la solution du 20eme centile et le 80eme centile par un barre bleu vertical et finalement un ligne horizontal pour placer la solution optimal (calculer par un lib externe).
-- les heatmap : permet de faire varier deux parametres. Affiche la moyenne des meilleurs solutions obtenu dans chaque case et collore la case pour pouvoir la comparer facilement à ses voisines.
+### Lecture des graphiques
 
-__Methode__ :
+Il y a deux types de graphiques utilisés :
 
-Pour identifier les parametres permetant d'obtenire de bon résultats dans un temps résonnable, nous avons calculé la fitness moyenne des resultat pour des parametre donné.
-Nous avons fait varier 1 ou 2 parametres a la fois ce qui nous a alors permis de generer des graphs pour identifier les parametres les plus efficaces.
-Dans la grande majorité des cas, les premiers graph généré on permis de trouver un bon taux de mutation en faisant varier le nombres d'individus et le taux de mutation. (exemple sur 13-10000):
+- **Courbes** (comme vu dans la partie TABU): on fait varier un paramètre et on observe l’évolution de la fitness. Chaque point correspond à une moyenne sur plusieurs runs avec différentes seeds.  
+  - Moyenne : croix rouge  
+  - Médiane : point bleu  
+  - Intervalle intercentile (20e à 80e centile) : barre bleue  
+  - Ligne horizontale : solution optimale (via une librairie externe)
+
+- **Heatmaps** : font varier deux paramètres, affichent la moyenne des meilleures fitness dans chaque case, avec un code couleur pour visualiser facilement.
+
+### Méthode
+
+Pour identifier les parametres permetant d'obtenire de bon résultats dans un temps résonnable, nous avons fait varier 1 ou 2 parametres a la fois ce qui nous a alors permis de générer des graphs pour identifier les parametres les plus efficaces.
+Dans la grande majorité des cas, les premiers graph généré on permis de trouver un bon taux de mutation en faisant varier le nombres d'individus et le taux de mutation.
+Exemple (13-10000) :
 
 ![Graph](\graph\Genetique\10000\13\01.png)
 
-on peut clairement voir que l'on obtien de meilleurs resultat avec un taux de mutation proche de 0.00016. On peut donc regenerer un deuxieme graphique pour identifier plus precisement où se trouve le meilleur taux de mutation.
-Une foi le taux de mutation fixé, on affiche une courbe de la fitness en fonction de la taille de la population pour voir jusqu'a où la l'augmentation de la population permet une amélioration significative du resultat. (exemple sur 13-1000):
+On observe un pic de performance autour d’un taux de mutation de 0.00016. On peut donc regénérer un deuxieme graphique pour identifier plus precisement où se trouve le meilleur taux de mutation.
+Une fois ce taux fixé, on observe l’évolution de la fitness selon la taille de la population.
+Exemple (13-1000) :
 
 ![Graph](\graph\Genetique\1000\13\03.png)
 
-Il reste alors a trouver a partire de combien d'iteration le resultat ne s'ameliore presque plus en partant des résultats determiné precedement. On calcule donc la courbe de la meilleurs fitness en fonction du nombre d'iteration. (exemple sur 15-1000):
+Enfin, on observe quand commance la stagnation de la fitness pour déterminer combien d’itérations sont suffisantes en utilisant les parametre trouvé plus haut.
+Exemple(15-1000) :
 
 ![Graph](\graph\Genetique\1000\15\03.png)
 
-Une fois toute les valeurs definis, on peut regenerer les premiers graphes avec cette fois ci des parametre plus juste pour verifier que nos estimation sont correcte.
+Une fois toutes les valeurs définies, on peut régénérer les premiers graphes, cette fois-ci avec des paramètres plus justes, pour vérifier que nos estimations sont correctes.
 
-### Solution optimal
 
-determinées par KNAPSACK_DIVIDE_AND_CONQUER_SOLVER de la librairie ortools
-sert de référence pour évaluer la valeur des résultats.
+---
 
-pour le 12_100 :    970
-pour le 13_100 :    1989
-pour le 15_100 :    1011
+### Solutions optimales
 
-pour le 12_1000 :   4514
-pour le 13_1000 :   6513
-pour le 15_1000 :   4950
+Déterminées par `KNAPSACK_DIVIDE_AND_CONQUER_SOLVER` (librairie OR-Tools).
 
-pour le 12_10000 :  45105
-pour le 13_10000 :  64077
-pour le 15_10000 :  50622
+| Fichier      | Valeur optimale |
+|--------------|-----------------|
+| 12_100       | 970             |
+| 13_100       | 1989            |
+| 15_100       | 1011            |
+| 12_1000      | 4514            |
+| 13_1000      | 6513            |
+| 15_1000      | 4950            |
+| 12_10000     | 45105           |
+| 13_10000     | 64077           |
+| 15_10000     | 50622           |
+
+---
+
+## Résultats par taille de SAD
 
 ### Pour les petits SAD
 
