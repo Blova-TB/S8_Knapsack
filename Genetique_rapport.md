@@ -51,10 +51,14 @@ Le temps d'execution a été divisé par 10.
 
 ## Recherche des meilleurs parametres
 
-__lecture des graph__ : il y a deux type de graph differents utilisé dans cette partie :
+__lecture des graph__ :
+
+il y a deux type de graph differents utilisé dans cette partie :
 
 - les courbes (rappel): permet de faire varier un parametre et d'observer l'evolution de la fitness en fonction de ce dernier. Pour chaque point du graphique l'algorithme est calculer un certain nombre de fois en incrementant la seed de Random. Cela permet d'avoir plusieurs données que nous affichons de la sorte : la moyenne avec un + rouge, la medianne avec un point bleu, l'espace entre la solution du 20eme centile et le 80eme centile par un barre bleu vertical et finalement un ligne horizontal pour placer la solution optimal (calculer par un lib externe).
 - les heatmap : permet de faire varier deux parametres. Affiche la moyenne des meilleurs solutions obtenu dans chaque case et collore la case pour pouvoir la comparer facilement à ses voisines.
+
+__methode__ :
 
 Pour identifier les parametres permetant d'obtenire de bon resultats dans un temps résonnable, nous avons calculé la fitness moyenne des resultat pour des parametre donné.
 Nous avons fait varier 1 ou 2 parametres a la fois ce qui nous a alors permis de generer des graphs pour identifier les parametres les plus efficaces.
@@ -72,6 +76,11 @@ Il reste alors a trouver a partire de combien d'iteration le resultat ne samelio
 ![Graph](\graph\Genetique\1000\15\03.png)
 
 Une fois toute les valeurs definis, on peut regenerer les premiers graphes avec cette fois ci des parametre plus juste pour verifier que nos estimation sont correcte.
+
+### Solution optimal
+
+determinées par KNAPSACK_DIVIDE_AND_CONQUER_SOLVER de la librairie ortools
+sert de refferance pour evaluer la valeur des resultats.
 
 pour le 12_100 :    970
 pour le 13_100 :    1989
@@ -174,4 +183,4 @@ pour __"pi-15-10000-1000-001.kna"__ :
 
 ### commentaire
 
-- le classic_solve donne de bon resultat plutot rapidement. Pour avoir d'encore meilleurs resultats (en moyenne) on peut utiliser le new_mutation_solve avec un nombre d'iteration superieur a 45. Il est plus long, mais contrairement au classic_solve qui va stagner a partire de 45 iteration, new_mutation_solve va continué a s'amelioré légerement.
+A plusieurs reprise 
