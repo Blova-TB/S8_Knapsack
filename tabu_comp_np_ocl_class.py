@@ -16,7 +16,7 @@ perfect = ots.Other_solver(sad).solve()[0]
 
 seed = 1000
 solver =  tbns.tabou_numpy_solver(sad,700,900,2.1,0.5,seed)
-solver2 = tbcs.tabou_opencl_solver(sad2,700,900,2.1,0.5,seed)
+solver2 = tbcs.tabou_opencl2_solver(sad2,700,900,2.1,0.5,seed)
 solver3 = tb2s.tabou2_solver(sad3,700,900,2.1,0.5,seed)
 
 t = time.time()
