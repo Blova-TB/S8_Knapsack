@@ -13,7 +13,7 @@ DEFAULT_SOLUTION_SIZE = 0.5
 def next_power_of_two(x):
     return 1 << (x - 1).bit_length()
 
-class openCLcompute :
+class openCL2compute :
     def __init__(self,ctx=None,queue=None,nbitem=None):
         self.create_context(ctx)#créé le contexte
         self.create_queue(queue)#la queue de commande
@@ -228,7 +228,7 @@ def get_voisin(solution:list,operation:int) :
     sol[operation] = not sol[operation]
     return sol
 
-class tabou_opencl_solver(Solver) :
+class tabou_opencl2_solver(Solver) :
     # liste tabu : liste des transformations interdites
     # Une opération c'est l'ajout ou la suppression d'un élément
     # comment la représenter : entier i = indice de l'élément ajouté ou supprimer
@@ -274,7 +274,7 @@ class tabou_opencl_solver(Solver) :
         self.create_rand_solution()
         self.update_sad()
         
-        self.oCLpc = openCLcompute(nbitem=self.sad.nbItem)
+        self.oCLpc = openCL2compute(nbitem=self.sad.nbItem)
         self.oCLpc.init_glob_var(self.item_weights,self.item_fitnesses,self.sad.capacity,self.OVERFLOW_COST,self.solution)
     
     def udpate_true_fitness_after_all_raw_set(self) :
@@ -371,17 +371,17 @@ class tabou_opencl_solver(Solver) :
                 self.update_sad()
         return self.sad.bestFitness, self.sad.bestSolution
     
-def reinit_tabu_list(self : tabou_opencl_solver,tabu_size : int) :
-    return tabou_opencl_solver(self.sad,self.MAX_ITER,tabu_size,self.OVERFLOW_COST,self.DEF_SOL_SIZE,self.seed+1)
+def reinit_tabu_list(self : tabou_opencl2_solver,tabu_size : int) :
+    return tabou_opencl2_solver(self.sad,self.MAX_ITER,tabu_size,self.OVERFLOW_COST,self.DEF_SOL_SIZE,self.seed+1)
 
-def reinit_iter_changer(self : tabou_opencl_solver,max_iter_number : int) :
-    return tabou_opencl_solver(self.sad,max_iter_number,self.NB_TABU,self.OVERFLOW_COST,self.DEF_SOL_SIZE,self.seed+1)
+def reinit_iter_changer(self : tabou_opencl2_solver,max_iter_number : int) :
+    return tabou_opencl2_solver(self.sad,max_iter_number,self.NB_TABU,self.OVERFLOW_COST,self.DEF_SOL_SIZE,self.seed+1)
 
-def reinit_overflow_points(self : tabou_opencl_solver,percentage_weight_overflow : float) :
-    return tabou_opencl_solver(self.sad,self.MAX_ITER,self.NB_TABU,percentage_weight_overflow,self.DEF_SOL_SIZE,self.seed+1)
+def reinit_overflow_points(self : tabou_opencl2_solver,percentage_weight_overflow : float) :
+    return tabou_opencl2_solver(self.sad,self.MAX_ITER,self.NB_TABU,percentage_weight_overflow,self.DEF_SOL_SIZE,self.seed+1)
 
-def reinit_solution_size(self : tabou_opencl_solver,default_solution_size : float) :
-    return tabou_opencl_solver(self.sad,self.MAX_ITER,self.NB_TABU,self.OVERFLOW_COST,default_solution_size,self.seed+1)
+def reinit_solution_size(self : tabou_opencl2_solver,default_solution_size : float) :
+    return tabou_opencl2_solver(self.sad,self.MAX_ITER,self.NB_TABU,self.OVERFLOW_COST,default_solution_size,self.seed+1)
 
 class variateur_tabou_opencl2 : 
     def liste_tabou2() :
